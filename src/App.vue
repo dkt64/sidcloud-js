@@ -1,26 +1,26 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark height="80px">
       <div class="d-none d-sm-flex align-center">
         <v-img alt="Samar logo" class="mr-1" contain src="sign.png" width="30" />
         <div class="title mr-5">SIDCLOUD</div>
       </div>
 
-      <v-btn @click="click('play',last_index)" class="mr-2" fab small>
+      <v-btn @click="click('play',last_index)" class="mr-1" fab small>
         <v-icon>{{play_icon}}</v-icon>
         <!-- <v-icon>play_arrow</v-icon> -->
         <!-- <v-icon>pause</v-icon> -->
       </v-btn>
-      <v-btn @click="click('jmp',last_index-1)" class="mr-2" fab small>
+      <v-btn @click="click('jmp',last_index-1)" class="mr-1" fab small>
         <v-icon>skip_previous</v-icon>
       </v-btn>
-      <v-btn @click="click('jmp',last_index+1)" class="mr-2" fab small>
+      <v-btn @click="click('jmp',last_index+1)" class="mr-1" fab small>
         <v-icon>skip_next</v-icon>
       </v-btn>
-      <v-btn @click="click('jmp',last_index)" class="mr-2" fab small>
+      <v-btn @click="click('jmp',last_index)" class="mr-1" fab small>
         <v-icon>replay</v-icon>
       </v-btn>
-      <v-btn @click="click('stop',last_index)" class="mr-2" fab small>
+      <v-btn @click="click('stop',last_index)" fab small>
         <v-icon>stop</v-icon>
       </v-btn>
       <!-- <v-btn class="mr-2" fab small> -->
@@ -30,7 +30,7 @@
 
       <v-spacer></v-spacer>
       <div class="hidden-xs-and-down align-center">
-        <div class="title">{{title_playing}}</div>
+        <div class="subtitle">{{title_playing}}</div>
       </div>
 
       <v-spacer></v-spacer>
@@ -63,6 +63,10 @@
                 >{{nameWithComma(index)}}{{by}}</v-div>
               </v-card-text>
             </v-card>
+            <!-- <v-btn href="https://csdb.dk/release/?id=" target="_blank" text> -->
+              <!-- <span class="mr-2">CSDb</span> -->
+              <!-- <v-icon>link</v-icon> -->
+            <!-- </v-btn> -->
           </v-col>
         </v-row>
       </v-container>
@@ -129,10 +133,13 @@ export default {
         }
       }
 
-      if (this.play && job == "stop") {
-        player.pause();
-        player.currentTime = 0.0;
-        this.play = false;
+      if (job == "stop") {
+        if (this.play) {
+          player.pause();
+          player.currentTime = 0.0;
+          this.audio_url = "";
+          this.play = false;
+        }
       } else {
         if (!this.play || job == "jmp") {
           this.title_playing = this.releases[id].ReleaseName;
