@@ -81,6 +81,7 @@ export default {
   methods: {
     click(id) {
       console.log("Clicked on " + id);
+      this.title_playing = this.releases[id].ReleaseName
     },
     nameWithComma(index) {
       if (index == 0) {
