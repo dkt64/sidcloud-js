@@ -46,9 +46,9 @@
       <v-container fluid>
         <v-row dense>
           <v-col v-for="(card,index) in releases" :key="card.ReleaseID">
-            <v-card @click="click('jmp',index)" class="mx-auto mb-5" max-width="384">
-              <v-img :src="card.ReleaseScreenShot" width="384" height="272"></v-img>
-              <v-card-title v-text="card.ReleaseName.substring(0, 31)"></v-card-title>
+            <v-card @click="click('jmp',index)" class="mx-auto mb-5" min-height="360" width="300">
+              <v-img :src="card.ReleaseScreenShot" width="300" height="212"></v-img>
+              <v-card-title v-text="card.ReleaseName.substring(0, 27)"></v-card-title>
               <v-card-subtitle>
                 <v-div
                   v-for="(by,index) in card.ReleasedBy"
@@ -81,6 +81,8 @@
 <script>
 import axios from "axios";
 
+var player = document.getElementById("radio");
+
 export default {
   name: "App",
   data: () => ({
@@ -90,11 +92,12 @@ export default {
     play: false,
     paused: false,
     player_type: "sidplayfp",
-    last_index: 0
+    last_index: 0,
+    music_ended: false
   }),
   computed: {
     play_icon: function() {
-      if (this.play) {
+      if (this.play && !this.paused) {
         return "pause";
       } else {
         return "play_arrow";
@@ -123,109 +126,112 @@ export default {
           axios.defaults.baseURL + "/api/v1/audio/" + this.player_type;
       }
     },
+    ended() {
+      console.log("player event: ended");
+      // player.pause();
+      // player.currentTime = 0.0;
+      // this.audio_url = "";
+      // this.paused = false;
+      // this.play = false;
+      this.music_ended = true;
+      this.click("jmp", this.last_index + 1);
+    },
+    canplay() {
+      console.log("player event: canplay");
+      if (!this.music_ended) {
+        player.play();
+        console.log("Playing...");
+        this.paused = false;
+        this.play = true;
+      }
+    },
     click(job, id) {
       // console.log("Clicked on " + id);
-      var player = document.getElementById("radio");
 
-      if (job == "jmp") {
-        if (id < 0 || id >= this.releases.length) {
-          // console.log("last track");
-          return;
-        }
-      }
+      var query;
+      switch (job) {
+        // ===========================
+        // stop
+        // ===========================
+        case "stop":
+          player.pause();
+          player.currentTime = 0;
+          // this.audio_url = "";
+          this.paused = false;
+          this.play = false;
+          break;
+        // ===========================
+        // jmp
+        // ===========================
+        case "jmp":
+          // jeżeli index == 0 lub max to nic nie robimy
+          if (id < 0 || id >= this.releases.length) {
+            return;
+          }
 
-      if (job == "stop") {
-        player.pause();
-        player.currentTime = 0.0;
-        this.audio_url = "";
-        this.play = false;
-        this.paused = false;
-      } else {
-        if (!this.play || job == "jmp") {
+          player.pause();
+          player.currentTime = 0;
+          // this.audio_url = "";
+          this.paused = false;
+          this.play = false;
+
           this.title_playing = this.releases[id].ReleaseName;
           this.last_index = id;
+          query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
-          var query =
-            "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
-          // console.log("Query = " + query);
-
-          player.addEventListener("waiting", function() {
-            // console.log("player event: waiting");
-          });
-          player.addEventListener("play", function() {
-            // console.log("player event: play");
-          });
-          player.addEventListener("pause", function() {
-            // console.log("player event: pause");
-          });
-          player.addEventListener("ended", function() {
-            // console.log("player event: ended");
-            player.pause();
-            player.currentTime = 0.0;
-            this.audio_url = "";
-            this.play = false;
-            this.paused = false;
-          });
-          player.addEventListener("loadstart", function() {
-            // console.log("player event: loadstart");
-          });
-          player.addEventListener("durationchange", function() {
-            // console.log("player event: durationchange");
-          });
-          player.addEventListener("loadedmetadata", function() {
-            // console.log("player event: loadedmetadata");
-          });
-          player.addEventListener("loadeddata", function() {
-            // console.log("player event: loadeddata");
-          });
-          // player.addEventListener("progress", function() {
-          //   console.log("player event: progress");
-          // });
-          // TODO Dodać licznik czasu
-          player.addEventListener("canplay", function() {
-            console.log("player event: canplay");
-            player.play();
-            console.log("Playing...");
-          });
-          player.addEventListener("canplaythrough", function() {
-            // console.log("player event: canplaythrough");
-          });
-
-          if (!this.paused || job == "jmp") {
-            player.pause();
-            player.currentTime = 0.0;
-            this.paused = false;
-            this.play = false;
-
+          axios.post(query).then(response => {
+            console.log(response.data);
             this.AudioUrl();
-
-            axios.post(query).then(response => {
-              console.log(response.data);
-              player.load();
-              console.log("Loading...");
-              this.play = true;
-            });
-          } else {
-            player.pause();
-            this.paused = true;
-            this.play = false;
-          }
+            player.load();
+            console.log("Loading...");
+            this.music_ended = false;
+          });
+          break;
+        // ===========================
+        // play / pause
+        // ===========================
+        case "play":
           if (this.paused) {
-            player.play();
             this.paused = false;
-            this.play = true;
+            this.AudioUrl();
+            player.play();
+          } else {
+            if (!this.play) {
+              //
+              // play
+              //
+
+              player.pause();
+              player.currentTime = 0;
+              // this.audio_url = "";
+              this.paused = false;
+              this.play = false;
+
+              this.title_playing = this.releases[id].ReleaseName;
+              this.last_index = id;
+              query =
+                "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
+
+              axios.post(query).then(response => {
+                console.log(response.data);
+                this.AudioUrl();
+                player.load();
+                console.log("Loading...");
+                this.music_ended = false;
+              });
+            } else {
+              //
+              // pause
+              //
+              player.pause();
+              this.paused = true;
+            }
           }
-        } else {
-          player.pause();
-          this.paused = true;
-          this.play = false;
-        }
+          break;
       }
     }
   },
   created() {
-    this.AudioUrl();
-
     axios
       .get("/api/v1/csdb_releases")
       .then(response => {
@@ -237,6 +243,43 @@ export default {
       .catch(function(error) {
         console.log(error);
       });
+
+    this.AudioUrl();
+  },
+  mounted() {
+    player = document.getElementById("radio");
+    player.addEventListener("ended", this.ended);
+    player.addEventListener("canplay", this.canplay);
+
+    // TODO Dodać licznik czasu poprzez zdarzenie durationchange (?)
+
+    // player.addEventListener("waiting", function() {
+    //   // console.log("player event: waiting");
+    // });
+    // player.addEventListener("play", function() {
+    //   // console.log("player event: play");
+    // });
+    // player.addEventListener("pause", function() {
+    //   // console.log("player event: pause");
+    // });
+    // player.addEventListener("loadstart", function() {
+    //   // console.log("player event: loadstart");
+    // });
+    // player.addEventListener("durationchange", function() {
+    //   // console.log("player event: durationchange");
+    // });
+    // player.addEventListener("loadedmetadata", function() {
+    //   // console.log("player event: loadedmetadata");
+    // });
+    // player.addEventListener("loadeddata", function() {
+    //   // console.log("player event: loadeddata");
+    // });
+    // player.addEventListener("progress", function() {
+    //   console.log("player event: progress");
+    // });
+    // player.addEventListener("canplaythrough", function() {
+    //   // console.log("player event: canplaythrough");
+    // });
   }
 };
 </script>
