@@ -30,7 +30,7 @@
 
       <v-spacer></v-spacer>
       <div class="hidden-xs-and-down align-center">
-        <div class="font-weight-thin headline">{{title_playing}}</div>
+        <div class="font-weight-thin title">{{title_playing}}</div>
       </div>
 
       <v-spacer></v-spacer>
@@ -156,7 +156,7 @@ export default {
         case "stop":
           player.pause();
           player.currentTime = 0;
-          // this.audio_url = "";
+          this.audio_url = "";
           this.paused = false;
           this.play = false;
           break;
@@ -171,7 +171,6 @@ export default {
 
           player.pause();
           player.currentTime = 0;
-          // this.audio_url = "";
           this.paused = false;
           this.play = false;
 
@@ -203,7 +202,6 @@ export default {
 
               player.pause();
               player.currentTime = 0;
-              // this.audio_url = "";
               this.paused = false;
               this.play = false;
 
