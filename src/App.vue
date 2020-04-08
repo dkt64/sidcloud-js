@@ -156,9 +156,9 @@ export default {
         case "stop":
           player.pause();
           player.currentTime = 0;
-          this.audio_url = "";
           this.paused = false;
           this.play = false;
+          this.music_ended = true;
           break;
         // ===========================
         // jmp
@@ -192,6 +192,7 @@ export default {
         case "play":
           if (this.paused) {
             this.paused = false;
+            this.music_ended = false;
             this.AudioUrl();
             player.play();
           } else {
@@ -199,7 +200,6 @@ export default {
               //
               // play
               //
-
               player.pause();
               player.currentTime = 0;
               this.paused = false;
@@ -215,7 +215,7 @@ export default {
                 this.AudioUrl();
                 player.load();
                 console.log("Loading...");
-                this.music_ended = false;
+                this.music_ended = false; 
               });
             } else {
               //
