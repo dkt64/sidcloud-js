@@ -1,26 +1,34 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark height="100px">
+    <v-app-bar app color="primary" dark height="80px">
       <div class="d-none d-sm-flex align-center">
-        <v-img alt="Samar logo" class="mr-1" contain src="sign.png" width="40" />
+        <v-img
+          alt="Samar logo"
+          class="mr-1"
+          contain
+          src="sign.png"
+          width="40"
+        />
         <v-flex class="font-weight-thin headline mr-5">SIDCLOUD</v-flex>
       </div>
 
-      <v-btn @click="click('play',last_index)" class="mr-1" fab small>
-        <v-icon>{{play_icon}}</v-icon>
+      <v-spacer></v-spacer>
+
+      <v-btn @click="click('play', last_index)" class="mr-2" fab>
+        <v-icon>{{ play_icon }}</v-icon>
         <!-- <v-icon>play_arrow</v-icon> -->
         <!-- <v-icon>pause</v-icon> -->
       </v-btn>
-      <v-btn @click="click('jmp',last_index-1)" class="mr-1" fab small>
+      <v-btn @click="click('jmp', last_index - 1)" class="mr-2" fab>
         <v-icon>skip_previous</v-icon>
       </v-btn>
-      <v-btn @click="click('jmp',last_index+1)" class="mr-1" fab small>
+      <v-btn @click="click('jmp', last_index + 1)" class="mr-2" fab>
         <v-icon>skip_next</v-icon>
       </v-btn>
-      <v-btn @click="click('jmp',last_index)" class="mr-1" fab small>
+      <v-btn @click="click('jmp', last_index)" class="mr-2" fab>
         <v-icon>replay</v-icon>
       </v-btn>
-      <v-btn @click="click('stop',last_index)" class="mr-2" fab small>
+      <v-btn @click="click('stop', last_index)" fab>
         <v-icon>stop</v-icon>
       </v-btn>
       <!-- <v-btn class="mr-2" fab small> -->
@@ -28,10 +36,10 @@
       <!-- <v-icon>volume_up</v-icon> -->
       <!-- </v-btn> -->
 
-      <v-spacer></v-spacer>
+      <!-- <v-spacer></v-spacer>
       <div class="hidden-xs-and-down align-center">
         <div class="font-weight-thin title">{{title_playing}}</div>
-      </div>
+      </div>-->
 
       <v-spacer></v-spacer>
       <v-switch
@@ -45,29 +53,47 @@
     <v-content>
       <v-container fluid>
         <v-row dense>
-          <v-col v-for="(card,index) in releases" :key="card.ReleaseID">
-            <v-card @click="click('jmp',index)" class="mx-auto mb-5" min-height="420" width="320">
+          <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
+            <v-card
+              @click="click('jmp', index)"
+              class="mx-auto mb-5"
+              min-height="420"
+              width="320"
+            >
               <v-img
                 :src="card.ReleaseScreenShot"
                 width="320"
                 height="227"
               ></v-img>
-              <v-rating :value="card.Rating" class="d-flex justify-center mt-1" size="27" length="10" readonly dense></v-rating>
-              <v-card-title v-text="card.ReleaseName.substring(0, 27)"></v-card-title>
+              <v-progress-linear
+                :value="current_time(index)"
+                :indeterminate="indeterminate(index)"
+                height="8"
+              ></v-progress-linear>
+              <v-rating
+                :value="card.Rating"
+                class="d-flex justify-center mt-1"
+                size="27"
+                length="10"
+                readonly
+                dense
+              ></v-rating>
+              <v-card-title
+                v-text="card.ReleaseName.substring(0, 27)"
+              ></v-card-title>
               <v-card-subtitle>
-                <v-div
-                  v-for="(by,index) in card.ReleasedBy"
-                  :key="by"
-                >{{nameWithComma(index)}}{{by}}</v-div>
+                <v-div v-for="(by, index) in card.ReleasedBy" :key="by"
+                  >{{ nameWithComma(index) }}{{ by }}</v-div
+                >
               </v-card-subtitle>
               <v-card-text>
                 <v-div
                   class="font-italic font-weight-medium"
-                  v-for="(by,index) in card.Credits"
+                  v-for="(by, index) in card.Credits"
                   :key="by"
-                >{{nameWithComma(index)}}{{by}}</v-div>
+                  >{{ nameWithComma(index) }}{{ by }}</v-div
+                >
               </v-card-text>
-              <!-- <v-divider></v-divider> -->
             </v-card>
             <!-- <v-btn href="https://csdb.dk/release/?id=" target="_blank" text> -->
             <!-- <span class="mr-2">CSDb</span> -->
@@ -77,7 +103,26 @@
         </v-row>
       </v-container>
     </v-content>
-
+    <v-bottom-navigation app grow>
+      <v-container fluid style="margin: 0px; padding: 0px; width: 100%">
+        <v-layout wrap justify-center>
+          <v-progress-linear
+            :value="(timeCurrent / timeDuration) * 100.0"
+            height="8"
+            :indeterminate="music_loading"
+          ></v-progress-linear>
+          <v-btn
+            class="mt-3 font-weight-thin title"
+            :href="linkToCsdb"
+            link
+            text
+            target="_blank"
+          >
+            {{ title_playing }}
+          </v-btn>
+        </v-layout>
+      </v-container>
+    </v-bottom-navigation>
     <audio id="radio" preload="none">
       <source :src="audio_url" type="audio/wav" />
     </audio>
@@ -99,7 +144,11 @@ export default {
     paused: false,
     player_type: "sidplayfp",
     last_index: 0,
-    music_ended: false
+    music_ended: false,
+    music_loading: false,
+    timeDuration: 305.0,
+    timeCurrent: 0.0,
+    linkToCsdb: "https://csdb.dk/",
   }),
   computed: {
     play_icon: function() {
@@ -108,9 +157,25 @@ export default {
       } else {
         return "play_arrow";
       }
-    }
+    },
   },
   methods: {
+    current_time: function(id) {
+      if (this.play && id == this.last_index) {
+        return ((this.timeCurrent / this.timeDuration) * 100.0).toString();
+        // return player.duration.toString();
+        // return this.timeCurrent.toString()
+      } else {
+        return "0";
+      }
+    },
+    indeterminate: function(id) {
+      if (id == this.last_index && this.music_loading) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     nameWithComma(index) {
       if (index == 0) {
         return "";
@@ -146,10 +211,22 @@ export default {
       console.log("player event: canplay");
       if (!this.music_ended) {
         player.play();
-        console.log("Playing...");
+        console.log("player.play()...");
         this.paused = false;
         this.play = true;
+
+        this.linkToCsdb =
+          "https://csdb.dk/release/?id=" +
+          this.releases[this.last_index].ReleaseID;
       }
+    },
+    timeupdate() {
+      // console.log("player event: timeupdate");
+      this.timeCurrent = player.currentTime;
+    },
+    playing() {
+      console.log("player event: playing");
+      this.music_loading = false;
     },
     click(job, id) {
       // console.log("Clicked on " + id);
@@ -171,7 +248,7 @@ export default {
         // ===========================
         case "jmp":
           // jeżeli index == 0 lub max to nic nie robimy
-          if (id == this.last_index || id < 0 || id >= this.releases.length) {
+          if (id < 0 || id >= this.releases.length) {
             return;
           }
 
@@ -179,12 +256,13 @@ export default {
           player.currentTime = 0;
           this.paused = false;
           this.play = false;
+          this.music_loading = true;
 
           this.title_playing = this.releases[id].ReleaseName;
           this.last_index = id;
           query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
-          axios.post(query).then(response => {
+          axios.post(query).then((response) => {
             console.log(response.data);
             this.AudioUrl();
             player.load();
@@ -210,13 +288,14 @@ export default {
               player.currentTime = 0;
               this.paused = false;
               this.play = false;
+              this.music_loading = true;
 
               this.title_playing = this.releases[id].ReleaseName;
               this.last_index = id;
               query =
                 "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
-              axios.post(query).then(response => {
+              axios.post(query).then((response) => {
                 console.log(response.data);
                 this.AudioUrl();
                 player.load();
@@ -229,16 +308,17 @@ export default {
               //
               player.pause();
               this.paused = true;
+              this.musicPlay = false;
             }
           }
           break;
       }
-    }
+    },
   },
   created() {
     axios
       .get("/api/v1/csdb_releases")
-      .then(response => {
+      .then((response) => {
         console.log("Response: ");
         console.log(response.data);
 
@@ -254,6 +334,10 @@ export default {
     player = document.getElementById("radio");
     player.addEventListener("ended", this.ended);
     player.addEventListener("canplay", this.canplay);
+    player.addEventListener("timeupdate", this.timeupdate);
+    player.addEventListener("playing", this.playing);
+    // player.addEventListener("durationchange", this.durationchange);
+    // player.addEventListener("canplaythrough", this.canplaythrough);
 
     // TODO Dodać licznik czasu poprzez zdarzenie durationchange (?)
 
@@ -269,21 +353,12 @@ export default {
     // player.addEventListener("loadstart", function() {
     //   // console.log("player event: loadstart");
     // });
-    // player.addEventListener("durationchange", function() {
-    //   // console.log("player event: durationchange");
-    // });
     // player.addEventListener("loadedmetadata", function() {
     //   // console.log("player event: loadedmetadata");
     // });
     // player.addEventListener("loadeddata", function() {
     //   // console.log("player event: loadeddata");
     // });
-    // player.addEventListener("progress", function() {
-    //   console.log("player event: progress");
-    // });
-    // player.addEventListener("canplaythrough", function() {
-    //   // console.log("player event: canplaythrough");
-    // });
-  }
+  },
 };
 </script>
