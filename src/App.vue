@@ -251,7 +251,7 @@ export default {
         case "jmp":
           // jeżeli index == 0 lub max to nic nie robimy
           if (
-            (id == this.last_index && this.playedOnce) ||
+            (id == this.last_index && this.playedOnce && !this.music_loading) ||
             id < 0 ||
             id >= this.releases.length
           ) {
@@ -262,12 +262,12 @@ export default {
           player.currentTime = 0;
           this.paused = false;
           this.play = false;
-          this.music_loading = true;
 
           this.title_playing = this.releases[id].ReleaseName;
           this.last_index = id;
           query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
+          this.music_loading = true;
           axios.post(query).then((response) => {
             console.log(response.data);
             this.AudioUrl();
@@ -294,13 +294,13 @@ export default {
               player.currentTime = 0;
               this.paused = false;
               this.play = false;
-              this.music_loading = true;
 
               this.title_playing = this.releases[id].ReleaseName;
               this.last_index = id;
               query =
                 "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
+              this.music_loading = true;
               axios.post(query).then((response) => {
                 console.log(response.data);
                 this.AudioUrl();
