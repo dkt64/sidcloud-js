@@ -28,7 +28,7 @@
       <v-btn @click="click('jmp', last_index)" class="mr-2" fab>
         <v-icon>replay</v-icon>
       </v-btn>
-      <v-btn @click="click('stop', last_index)" class="mr-2" fab>
+      <v-btn @click="click('stop', last_index)" fab>
         <v-icon>stop</v-icon>
       </v-btn>
       <!-- <v-btn class="mr-2" fab small> -->
@@ -42,8 +42,8 @@
       </div>-->
 
       <v-spacer></v-spacer>
-      <!-- class="hidden-sm-and-down" -->
       <v-switch
+        class="ml-2 hidden-sm-and-down"
         v-model="$vuetify.theme.dark"
         label="Theme"
         style="margin-top: 22px"
@@ -112,7 +112,7 @@
             :indeterminate="music_loading"
           ></v-progress-linear>
           <v-btn
-            class="mt-2 font-weight-thin title"
+            class="mt-1 font-weight-thin title"
             :href="linkToCsdb"
             link
             text
@@ -149,7 +149,7 @@ export default {
     timeDuration: 305.0,
     timeCurrent: 0.0,
     linkToCsdb: "https://csdb.dk/",
-    playedOnce: false
+    playedOnce: false,
   }),
   computed: {
     play_icon: function() {
@@ -250,7 +250,11 @@ export default {
         // ===========================
         case "jmp":
           // jeżeli index == 0 lub max to nic nie robimy
-          if ((id == this.last_index && this.playedOnce) || id < 0 || id >= this.releases.length) {
+          if (
+            (id == this.last_index && this.playedOnce) ||
+            id < 0 ||
+            id >= this.releases.length
+          ) {
             return;
           }
 
