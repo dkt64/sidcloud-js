@@ -46,8 +46,13 @@
       <v-container fluid>
         <v-row dense>
           <v-col v-for="(card,index) in releases" :key="card.ReleaseID">
-            <v-card @click="click('jmp',index)" class="mx-auto mb-5" min-height="360" width="300">
-              <v-img :src="card.ReleaseScreenShot" width="300" height="212"></v-img>
+            <v-card @click="click('jmp',index)" class="mx-auto mb-5" min-height="420" width="320">
+              <v-img
+                :src="card.ReleaseScreenShot"
+                width="320"
+                height="227"
+              ></v-img>
+              <v-rating :value="card.Rating" class="d-flex justify-center mt-1" size="27" length="10" readonly dense></v-rating>
               <v-card-title v-text="card.ReleaseName.substring(0, 27)"></v-card-title>
               <v-card-subtitle>
                 <v-div
@@ -62,6 +67,7 @@
                   :key="by"
                 >{{nameWithComma(index)}}{{by}}</v-div>
               </v-card-text>
+              <!-- <v-divider></v-divider> -->
             </v-card>
             <!-- <v-btn href="https://csdb.dk/release/?id=" target="_blank" text> -->
             <!-- <span class="mr-2">CSDb</span> -->
@@ -165,7 +171,7 @@ export default {
         // ===========================
         case "jmp":
           // jeżeli index == 0 lub max to nic nie robimy
-          if (id < 0 || id >= this.releases.length) {
+          if (id == this.last_index || id < 0 || id >= this.releases.length) {
             return;
           }
 
@@ -215,7 +221,7 @@ export default {
                 this.AudioUrl();
                 player.load();
                 console.log("Loading...");
-                this.music_ended = false; 
+                this.music_ended = false;
               });
             } else {
               //
