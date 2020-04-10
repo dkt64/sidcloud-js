@@ -213,17 +213,6 @@ export default {
     },
     canplay() {
       console.log("player event: canplay");
-      if (!this.music_ended) {
-        player.play();
-        console.log("player.play()...");
-        this.paused = false;
-        this.music_play = true;
-        this.playedOnce = true;
-
-        this.linkToCsdb =
-          "https://csdb.dk/release/?id=" +
-          this.releases[this.last_index].ReleaseID;
-      }
     },
     timeupdate() {
       // console.log("player event: timeupdate");
@@ -244,6 +233,17 @@ export default {
     },
     loadedmetadata() {
       console.log("player event: loadedmetadata");
+      if (!this.music_ended) {
+        player.play();
+        console.log("player.play()...");
+        this.paused = false;
+        this.music_play = true;
+        this.playedOnce = true;
+
+        this.linkToCsdb =
+          "https://csdb.dk/release/?id=" +
+          this.releases[this.last_index].ReleaseID;
+      }
     },
     loadeddata() {
       console.log("player event: loadeddata");
@@ -277,6 +277,23 @@ export default {
     },
     volumechange() {
       console.log("player event: volumechange");
+    },
+    keydown(event) {
+      switch (event.code) {
+        case "MediaPlayPause":
+          console.log("window event: keydown");
+          console.log(event.code);
+          this.click("play", this.last_index);
+          break;
+        case "MediaTrackNext":
+          this.click("jmp", this.last_index + 1);
+          break;
+        case "MediaTrackPrevious":
+          console.log("window event: keydown");
+          console.log(event.code);
+          this.click("jmp", this.last_index - 1);
+          break;
+      }
     },
     click(job, id) {
       // console.log("Clicked on " + id);
@@ -412,6 +429,8 @@ export default {
     player.addEventListener("stalled", this.stalled);
     player.addEventListener("suspend", this.suspend);
     player.addEventListener("volumechange", this.volumechange);
+
+    window.addEventListener("keydown", this.keydown);
 
     // Cykliczne
     // player.addEventListener("durationchange", this.durationchange);
