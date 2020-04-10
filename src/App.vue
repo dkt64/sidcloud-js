@@ -138,7 +138,7 @@ export default {
   name: "App",
   data: () => ({
     releases: null,
-    title_playing: "SIDCLOUD.NET - YOUR SID NEWSPAPER",
+    title_playing: "SIDCLOUD - YOUR SID NEWSPAPER",
     audio_url: "",
     music_play: false,
     paused: false,
@@ -200,6 +200,9 @@ export default {
     },
     ended() {
       console.log("player event: ended");
+      // Teraz przeskakujemy do nastepnej
+      // to jest stary kod kiey robiłem restart
+      //
       // player.pause();
       // player.currentTime = 0.0;
       // this.audio_url = "";
@@ -210,6 +213,17 @@ export default {
     },
     canplay() {
       console.log("player event: canplay");
+      if (!this.music_ended) {
+        player.play();
+        console.log("player.play()...");
+        this.paused = false;
+        this.music_play = true;
+        this.playedOnce = true;
+
+        this.linkToCsdb =
+          "https://csdb.dk/release/?id=" +
+          this.releases[this.last_index].ReleaseID;
+      }
     },
     timeupdate() {
       // console.log("player event: timeupdate");
@@ -230,17 +244,6 @@ export default {
     },
     loadedmetadata() {
       console.log("player event: loadedmetadata");
-      if (!this.music_ended) {
-        player.play();
-        console.log("player.play()...");
-        this.paused = false;
-        this.music_play = true;
-        this.playedOnce = true;
-
-        this.linkToCsdb =
-          "https://csdb.dk/release/?id=" +
-          this.releases[this.last_index].ReleaseID;
-      }
     },
     loadeddata() {
       console.log("player event: loadeddata");
