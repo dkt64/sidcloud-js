@@ -25,7 +25,7 @@
       <v-btn @click="click('jmp', last_index + 1)" class="mr-2" fab>
         <v-icon>skip_next</v-icon>
       </v-btn>
-      <v-btn @click="click('jmp', last_index)" class="mr-2" fab>
+      <v-btn @click="click('replay', last_index)" class="mr-2" fab>
         <v-icon>replay</v-icon>
       </v-btn>
       <v-btn @click="click('stop', last_index)" fab>
@@ -210,17 +210,6 @@ export default {
     },
     canplay() {
       console.log("player event: canplay");
-      if (!this.music_ended) {
-        player.play();
-        console.log("player.play()...");
-        this.paused = false;
-        this.music_play = true;
-        this.playedOnce = true;
-
-        this.linkToCsdb =
-          "https://csdb.dk/release/?id=" +
-          this.releases[this.last_index].ReleaseID;
-      }
     },
     timeupdate() {
       // console.log("player event: timeupdate");
@@ -241,6 +230,17 @@ export default {
     },
     loadedmetadata() {
       console.log("player event: loadedmetadata");
+      if (!this.music_ended) {
+        player.play();
+        console.log("player.play()...");
+        this.paused = false;
+        this.music_play = true;
+        this.playedOnce = true;
+
+        this.linkToCsdb =
+          "https://csdb.dk/release/?id=" +
+          this.releases[this.last_index].ReleaseID;
+      }
     },
     loadeddata() {
       console.log("player event: loadeddata");
@@ -294,9 +294,13 @@ export default {
         // jmp
         // ===========================
         case "jmp":
+        case "replay":
           // jeżeli index == 0 lub max to nic nie robimy
           if (
-            (id == this.last_index && this.playedOnce && !this.music_loading) ||
+            (id == this.last_index &&
+              job == "jmp" &&
+              this.playedOnce &&
+              !this.music_loading) ||
             id < 0 ||
             id >= this.releases.length
           ) {
@@ -324,7 +328,7 @@ export default {
         // ===========================
         // music_play / pause
         // ===========================
-        case "music_play":
+        case "play":
           if (this.paused) {
             this.paused = false;
             this.music_ended = false;
