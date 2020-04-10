@@ -140,7 +140,7 @@ export default {
     releases: null,
     title_playing: "SIDCLOUD.NET - YOUR SID NEWSPAPER",
     audio_url: "",
-    play: false,
+    music_play: false,
     paused: false,
     player_type: "sidplayfp",
     last_index: 0,
@@ -149,20 +149,20 @@ export default {
     timeDuration: 305.0,
     timeCurrent: 0.0,
     linkToCsdb: "https://csdb.dk/",
-    playedOnce: false,
+    playedOnce: false
   }),
   computed: {
     play_icon: function() {
-      if (this.play && !this.paused) {
+      if (this.music_play && !this.paused) {
         return "pause";
       } else {
         return "play_arrow";
       }
-    },
+    }
   },
   methods: {
     current_time: function(id) {
-      if (this.play && id == this.last_index) {
+      if (this.music_play && id == this.last_index) {
         return ((this.timeCurrent / this.timeDuration) * 100.0).toString();
         // return player.duration.toString();
         // return this.timeCurrent.toString()
@@ -204,7 +204,7 @@ export default {
       // player.currentTime = 0.0;
       // this.audio_url = "";
       // this.paused = false;
-      // this.play = false;
+      // this.music_play = false;
       this.music_ended = true;
       this.click("jmp", this.last_index + 1);
     },
@@ -214,7 +214,7 @@ export default {
         player.play();
         console.log("player.play()...");
         this.paused = false;
-        this.play = true;
+        this.music_play = true;
         this.playedOnce = true;
 
         this.linkToCsdb =
@@ -230,6 +230,51 @@ export default {
       console.log("player event: playing");
       this.music_loading = false;
     },
+    canplaythrough() {
+      console.log("player event: canplaythrough");
+    },
+    play() {
+      console.log("player event: play");
+    },
+    pause() {
+      console.log("player event: pause");
+    },
+    loadedmetadata() {
+      console.log("player event: loadedmetadata");
+    },
+    loadeddata() {
+      console.log("player event: loadeddata");
+    },
+    waiting() {
+      console.log("player event: waiting");
+    },
+    audioprocess() {
+      console.log("player event: audioprocess");
+    },
+    complete() {
+      console.log("player event: complete");
+    },
+    emptied() {
+      console.log("player event: emptied");
+    },
+    ratechange() {
+      console.log("player event: ratechange");
+    },
+    seeked() {
+      console.log("player event: seeked");
+    },
+    seeking() {
+      console.log("player event: seeking");
+    },
+    stalled() {
+      console.log("player event: stalled");
+    },
+    suspend() {
+      console.log("player event: suspend");
+    },
+    volumechange() {
+      console.log("player event: volumechange");
+    },
     click(job, id) {
       // console.log("Clicked on " + id);
 
@@ -242,7 +287,7 @@ export default {
           player.pause();
           player.currentTime = 0;
           this.paused = false;
-          this.play = false;
+          this.music_play = false;
           this.music_ended = true;
           break;
         // ===========================
@@ -261,14 +306,14 @@ export default {
           player.pause();
           player.currentTime = 0;
           this.paused = false;
-          this.play = false;
+          this.music_play = false;
 
           this.title_playing = this.releases[id].ReleaseName;
           this.last_index = id;
           query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
           this.music_loading = true;
-          axios.post(query).then((response) => {
+          axios.post(query).then(response => {
             console.log(response.data);
             this.AudioUrl();
             player.load();
@@ -277,23 +322,23 @@ export default {
           });
           break;
         // ===========================
-        // play / pause
+        // music_play / pause
         // ===========================
-        case "play":
+        case "music_play":
           if (this.paused) {
             this.paused = false;
             this.music_ended = false;
             this.AudioUrl();
             player.play();
           } else {
-            if (!this.play) {
+            if (!this.music_play) {
               //
-              // play
+              // music_play
               //
               player.pause();
               player.currentTime = 0;
               this.paused = false;
-              this.play = false;
+              this.music_play = false;
 
               this.title_playing = this.releases[id].ReleaseName;
               this.last_index = id;
@@ -301,7 +346,7 @@ export default {
                 "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
               this.music_loading = true;
-              axios.post(query).then((response) => {
+              axios.post(query).then(response => {
                 console.log(response.data);
                 this.AudioUrl();
                 player.load();
@@ -319,12 +364,12 @@ export default {
           }
           break;
       }
-    },
+    }
   },
   created() {
     axios
       .get("/api/v1/csdb_releases")
-      .then((response) => {
+      .then(response => {
         console.log("Response: ");
         console.log(response.data);
 
@@ -342,29 +387,27 @@ export default {
     player.addEventListener("canplay", this.canplay);
     player.addEventListener("timeupdate", this.timeupdate);
     player.addEventListener("playing", this.playing);
+
+    // Niepotrzebne - tylko do debuggingu
+    player.addEventListener("canplaythrough", this.canplaythrough);
+    player.addEventListener("play", this.play);
+    player.addEventListener("pause", this.pause);
+    player.addEventListener("loadedmetadata", this.loadedmetadata);
+    player.addEventListener("loadeddata", this.loadeddata);
+    player.addEventListener("waiting", this.waiting);
+
+    player.addEventListener("audioprocess", this.audioprocess);
+    player.addEventListener("complete", this.complete);
+    player.addEventListener("emptied", this.emptied);
+    player.addEventListener("ratechange", this.ratechange);
+    player.addEventListener("seeked", this.seeked);
+    player.addEventListener("seeking", this.seeking);
+    player.addEventListener("stalled", this.stalled);
+    player.addEventListener("suspend", this.suspend);
+    player.addEventListener("volumechange", this.volumechange);
+
+    // Cykliczne
     // player.addEventListener("durationchange", this.durationchange);
-    // player.addEventListener("canplaythrough", this.canplaythrough);
-
-    // TODO Dodać licznik czasu poprzez zdarzenie durationchange (?)
-
-    // player.addEventListener("waiting", function() {
-    //   // console.log("player event: waiting");
-    // });
-    // player.addEventListener("play", function() {
-    //   // console.log("player event: play");
-    // });
-    // player.addEventListener("pause", function() {
-    //   // console.log("player event: pause");
-    // });
-    // player.addEventListener("loadstart", function() {
-    //   // console.log("player event: loadstart");
-    // });
-    // player.addEventListener("loadedmetadata", function() {
-    //   // console.log("player event: loadedmetadata");
-    // });
-    // player.addEventListener("loadeddata", function() {
-    //   // console.log("player event: loadeddata");
-    // });
-  },
+  }
 };
 </script>
