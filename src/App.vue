@@ -138,7 +138,7 @@ export default {
   name: "App",
   data: () => ({
     releases: null,
-    title_playing: "",
+    title_playing: "SIDCLOUD.NET - YOUR SID NEWSPAPER",
     audio_url: "",
     play: false,
     paused: false,
