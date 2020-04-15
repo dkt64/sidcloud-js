@@ -28,9 +28,9 @@
       <v-btn @click="click('replay', last_index)" class="mr-2" fab>
         <v-icon>replay</v-icon>
       </v-btn>
-      <!-- <v-btn @click="click('stop', last_index)" fab>
+      <v-btn class="hidden-sm-and-down" @click="click('stop', last_index)" fab>
         <v-icon>stop</v-icon>
-      </v-btn> -->
+      </v-btn>
       <!-- <v-btn class="mr-2" fab small> -->
       <!-- <v-icon>volume_off</v-icon> -->
       <!-- <v-icon>volume_up</v-icon> -->
