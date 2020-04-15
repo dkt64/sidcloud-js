@@ -12,7 +12,7 @@
         <v-flex class="font-weight-thin headline mr-5">SIDCLOUD</v-flex>
       </div>
 
-      <v-spacer></v-spacer>
+      <v-spacer class="hidden-sm-and-down"></v-spacer>
 
       <v-btn @click="click('play', last_index)" class="mr-2" fab>
         <v-icon>{{ play_icon }}</v-icon>
@@ -28,9 +28,9 @@
       <v-btn @click="click('replay', last_index)" class="mr-2" fab>
         <v-icon>replay</v-icon>
       </v-btn>
-      <v-btn @click="click('stop', last_index)" fab>
+      <!-- <v-btn @click="click('stop', last_index)" fab>
         <v-icon>stop</v-icon>
-      </v-btn>
+      </v-btn> -->
       <!-- <v-btn class="mr-2" fab small> -->
       <!-- <v-icon>volume_off</v-icon> -->
       <!-- <v-icon>volume_up</v-icon> -->
@@ -42,10 +42,11 @@
       </div>-->
 
       <v-spacer></v-spacer>
+      <!-- class="overline" -->
       <v-switch
-        class="ml-2 hidden-sm-and-down"
+        class="hidden-xs-and-down"
         v-model="$vuetify.theme.dark"
-        label="Theme"
+        :label="themeLabel"
         style="margin-top: 22px"
       ></v-switch>
     </v-app-bar>
@@ -116,10 +117,12 @@
             :href="linkToCsdb"
             link
             text
+            block
             target="_blank"
           >
             {{ title_playing }}
           </v-btn>
+          <!-- <v-icon class="mt-1" right>open_in_new</v-icon> -->
         </v-layout>
       </v-container>
     </v-bottom-navigation>
@@ -149,7 +152,7 @@ export default {
     timeDuration: 305.0,
     timeCurrent: 0.0,
     linkToCsdb: "https://csdb.dk/",
-    playedOnce: false
+    playedOnce: false,
   }),
   computed: {
     play_icon: function() {
@@ -158,7 +161,17 @@ export default {
       } else {
         return "play_arrow";
       }
-    }
+    },
+    themeLabel: function() {
+      var out = "Theme";
+      if (
+        this.$vuetify.breakpoint.name == "xs" ||
+        this.$vuetify.breakpoint.name == "sm"
+      ) {
+        out = "";
+      }
+      return out;
+    },
   },
   methods: {
     current_time: function(id) {
@@ -337,7 +350,7 @@ export default {
           query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
           this.music_loading = true;
-          axios.post(query).then(response => {
+          axios.post(query).then((response) => {
             console.log(response.data);
             this.AudioUrl();
             player.load();
@@ -370,7 +383,7 @@ export default {
                 "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
               this.music_loading = true;
-              axios.post(query).then(response => {
+              axios.post(query).then((response) => {
                 console.log(response.data);
                 this.AudioUrl();
                 player.load();
@@ -388,12 +401,12 @@ export default {
           }
           break;
       }
-    }
+    },
   },
   created() {
     axios
       .get("/api/v1/csdb_releases")
-      .then(response => {
+      .then((response) => {
         console.log("Response: ");
         console.log(response.data);
 
@@ -434,6 +447,6 @@ export default {
 
     // Cykliczne
     // player.addEventListener("durationchange", this.durationchange);
-  }
+  },
 };
 </script>
