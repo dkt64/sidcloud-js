@@ -56,6 +56,7 @@
         <v-row dense>
           <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
             <v-card
+              v-if="card.WAVCached"
               @click="click('jmp', index)"
               class="mx-auto mb-5"
               min-height="420"
@@ -205,10 +206,13 @@ export default {
         axios.defaults.baseURL == null ||
         axios.defaults.baseURL === undefined
       ) {
-        this.audio_url = "/api/v1/audio/" + this.player_type;
+        this.audio_url =
+          "/api/v1/audio/" + this.releases[this.last_index].ReleaseID;
       } else {
         this.audio_url =
-          axios.defaults.baseURL + "/api/v1/audio/" + this.player_type;
+          axios.defaults.baseURL +
+          "/api/v1/audio/" +
+          this.releases[this.last_index].ReleaseID;
       }
     },
     ended() {
@@ -233,6 +237,9 @@ export default {
     },
     playing() {
       console.log("player event: playing");
+      this.paused = false;
+      this.music_play = true;
+      this.playedOnce = true;
       this.music_loading = false;
     },
     canplaythrough() {
@@ -246,17 +253,13 @@ export default {
     },
     loadedmetadata() {
       console.log("player event: loadedmetadata");
-      if (!this.music_ended) {
-        player.play();
-        console.log("player.play()...");
-        this.paused = false;
-        this.music_play = true;
-        this.playedOnce = true;
-
-        this.linkToCsdb =
-          "https://csdb.dk/release/?id=" +
-          this.releases[this.last_index].ReleaseID;
-      }
+      // if (!this.music_ended) {
+      //   player.play();
+      //   console.log("player.play()...");
+      //   this.paused = false;
+      //   this.music_play = true;
+      //   this.playedOnce = true;
+      // }
     },
     loadeddata() {
       console.log("player event: loadeddata");
@@ -311,14 +314,14 @@ export default {
     click(job, id) {
       // console.log("Clicked on " + id);
 
-      var query;
+      // var query;
       switch (job) {
         // ===========================
         // stop
         // ===========================
         case "stop":
-          player.pause();
-          player.currentTime = 0;
+          this.audio_url = "";
+          player.load();
           this.paused = false;
           this.music_play = false;
           this.music_ended = true;
@@ -347,16 +350,17 @@ export default {
 
           this.title_playing = this.releases[id].ReleaseName;
           this.last_index = id;
-          query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
+          // query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
           this.music_loading = true;
-          axios.post(query).then((response) => {
-            console.log(response.data);
-            this.AudioUrl();
-            player.load();
-            console.log("Loading...");
-            this.music_ended = false;
-          });
+          this.AudioUrl();
+          this.linkToCsdb =
+            "https://csdb.dk/release/?id=" +
+            this.releases[this.last_index].ReleaseID;
+          player.load();
+          console.log("Loading...");
+          player.play();
+          this.music_ended = false;
           break;
         // ===========================
         // music_play / pause
@@ -379,17 +383,17 @@ export default {
 
               this.title_playing = this.releases[id].ReleaseName;
               this.last_index = id;
-              query =
-                "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
+              // query =
+              //   "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
-              this.music_loading = true;
-              axios.post(query).then((response) => {
-                console.log(response.data);
-                this.AudioUrl();
-                player.load();
-                console.log("Loading...");
-                this.music_ended = false;
-              });
+              this.AudioUrl();
+              this.linkToCsdb =
+                "https://csdb.dk/release/?id=" +
+                this.releases[this.last_index].ReleaseID;
+              player.load();
+              console.log("Loading...");
+              player.play();
+              this.music_ended = false;
             } else {
               //
               // pause
