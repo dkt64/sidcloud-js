@@ -1,0 +1,1 @@
+cd %GOPATH%\src\github.com\dkt64\sidcloud-api

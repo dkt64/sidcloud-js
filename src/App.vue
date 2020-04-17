@@ -56,7 +56,6 @@
         <v-row dense>
           <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
             <v-card
-              v-if="card.WAVCached"
               @click="click('jmp', index)"
               class="mx-auto mb-5"
               min-height="420"
@@ -343,12 +342,27 @@ export default {
             return;
           }
 
+          // sprawdzamy czy mamy utwór cached
+          //
+          if (!this.releases[id].WAVCached) {
+            return;
+          }
+
           player.pause();
           player.currentTime = 0;
           this.paused = false;
           this.music_play = false;
 
-          this.title_playing = this.releases[id].ReleaseName;
+          if (
+            this.$vuetify.breakpoint.name == "xs" ||
+            this.$vuetify.breakpoint.name == "sm"
+          ) {
+            this.title_playing =
+              this.releases[id].ReleaseName.substring(0, 27) + " ...";
+          } else {
+            this.title_playing = this.releases[id].ReleaseName;
+          }
+
           this.last_index = id;
           // query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
 
@@ -381,7 +395,16 @@ export default {
               this.paused = false;
               this.music_play = false;
 
-              this.title_playing = this.releases[id].ReleaseName;
+              if (
+                this.$vuetify.breakpoint.name == "xs" ||
+                this.$vuetify.breakpoint.name == "sm"
+              ) {
+                this.title_playing =
+                  this.releases[id].ReleaseName.substring(0, 27) + " ...";
+              } else {
+                this.title_playing = this.releases[id].ReleaseName;
+              }
+
               this.last_index = id;
               // query =
               //   "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
