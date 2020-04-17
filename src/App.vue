@@ -56,6 +56,7 @@
         <v-row dense>
           <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
             <v-card
+              v-if="card.WAVCached"
               @click="click('jmp', index)"
               class="mx-auto mb-5"
               min-height="420"
@@ -438,12 +439,11 @@ export default {
         console.log(response.data);
 
         this.releases = response.data;
+        this.AudioUrl();
       })
       .catch(function(error) {
         console.log(error);
       });
-
-    this.AudioUrl();
   },
   mounted() {
     player = document.getElementById("radio");
