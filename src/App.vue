@@ -56,7 +56,7 @@
         <v-row dense>
           <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
             <v-card
-              v-if="card.WAVCached"
+              :disabled="cardDisabled(index)"
               @click="click('jmp', index)"
               class="mx-auto mb-5"
               min-height="420"
@@ -175,6 +175,12 @@ export default {
     },
   },
   methods: {
+    cardDisabled: function(id) {
+      if (this.releases[id].WAVCached) {
+        return false;
+      }
+      return true;
+    },
     current_time: function(id) {
       if (this.music_play && id == this.last_index) {
         return ((this.timeCurrent / this.timeDuration) * 100.0).toString();
