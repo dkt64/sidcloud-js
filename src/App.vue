@@ -364,8 +364,12 @@ export default {
             this.$vuetify.breakpoint.name == "xs" ||
             this.$vuetify.breakpoint.name == "sm"
           ) {
-            this.title_playing =
-              this.releases[id].ReleaseName.substring(0, 27) + " ...";
+            if (this.releases[id].ReleaseName.length > 27) {
+              this.title_playing =
+                this.releases[id].ReleaseName.substring(0, 27) + " ...";
+            } else {
+              this.title_playing = this.releases[id].ReleaseName;
+            }
           } else {
             this.title_playing = this.releases[id].ReleaseName;
           }
@@ -406,8 +410,12 @@ export default {
                 this.$vuetify.breakpoint.name == "xs" ||
                 this.$vuetify.breakpoint.name == "sm"
               ) {
-                this.title_playing =
-                  this.releases[id].ReleaseName.substring(0, 27) + " ...";
+                if (this.releases[id].ReleaseName.length > 27) {
+                  this.title_playing =
+                    this.releases[id].ReleaseName.substring(0, 27) + " ...";
+                } else {
+                  this.title_playing = this.releases[id].ReleaseName;
+                }
               } else {
                 this.title_playing = this.releases[id].ReleaseName;
               }
