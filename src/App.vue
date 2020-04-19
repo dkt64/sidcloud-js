@@ -136,8 +136,6 @@
 <script>
 import axios from "axios";
 
-var player = document.getElementById("radio");
-
 export default {
   name: "App",
   data: () => ({
@@ -239,6 +237,8 @@ export default {
     },
     timeupdate() {
       // console.log("player event: timeupdate");
+      var player = document.getElementById("radio");
+
       this.timeCurrent = player.currentTime;
     },
     playing() {
@@ -320,6 +320,8 @@ export default {
     click(job, id) {
       // console.log("Clicked on " + id);
 
+      var player = document.getElementById("radio");
+
       // var query;
       switch (job) {
         // ===========================
@@ -394,7 +396,7 @@ export default {
           if (this.paused) {
             this.paused = false;
             this.music_ended = false;
-            this.AudioUrl();
+            // this.AudioUrl();
             player.play();
           } else {
             if (!this.music_play) {
@@ -453,14 +455,14 @@ export default {
         console.log(response.data);
 
         this.releases = response.data;
-        this.AudioUrl();
+        // this.AudioUrl();
       })
       .catch(function(error) {
         console.log(error);
       });
   },
   mounted() {
-    player = document.getElementById("radio");
+    var player = document.getElementById("radio");
     player.addEventListener("ended", this.ended);
     player.addEventListener("canplay", this.canplay);
     player.addEventListener("timeupdate", this.timeupdate);
@@ -485,6 +487,10 @@ export default {
     player.addEventListener("volumechange", this.volumechange);
 
     window.addEventListener("keydown", this.keydown);
+
+    this.audio_url = "";
+    player.load();
+    player.play();
 
     // Cykliczne
     // player.addEventListener("durationchange", this.durationchange);
