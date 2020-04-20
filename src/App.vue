@@ -238,7 +238,6 @@ export default {
     timeupdate() {
       // console.log("player event: timeupdate");
       var player = document.getElementById("radio");
-
       this.timeCurrent = player.currentTime;
     },
     playing() {
@@ -377,8 +376,6 @@ export default {
           }
 
           this.last_index = id;
-          // query = "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
-
           this.music_loading = true;
           this.AudioUrl();
           this.linkToCsdb =
@@ -396,7 +393,6 @@ export default {
           if (this.paused) {
             this.paused = false;
             this.music_ended = false;
-            // this.AudioUrl();
             player.play();
           } else {
             if (!this.music_play) {
@@ -423,10 +419,8 @@ export default {
               }
 
               this.last_index = id;
-              // query =
-              //   "/api/v1/audio?sid_url=" + this.releases[id].DownloadLinks[0];
-
               this.AudioUrl();
+              this.music_loading = true;
               this.linkToCsdb =
                 "https://csdb.dk/release/?id=" +
                 this.releases[this.last_index].ReleaseID;
@@ -440,7 +434,7 @@ export default {
               //
               player.pause();
               this.paused = true;
-              this.musicPlay = false;
+              this.music_play = false;
             }
           }
           break;
@@ -455,7 +449,6 @@ export default {
         console.log(response.data);
 
         this.releases = response.data;
-        // this.AudioUrl();
       })
       .catch(function(error) {
         console.log(error);
@@ -487,10 +480,6 @@ export default {
     player.addEventListener("volumechange", this.volumechange);
 
     window.addEventListener("keydown", this.keydown);
-
-    this.audio_url = "";
-    player.load();
-    player.play();
 
     // Cykliczne
     // player.addEventListener("durationchange", this.durationchange);
