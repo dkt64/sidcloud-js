@@ -53,54 +53,82 @@
 
     <v-content>
       <v-container fluid>
-        <v-row dense>
+        <v-row>
           <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
-            <v-card
-              :disabled="cardDisabled(index)"
-              @click="click('jmp', index)"
-              class="mx-auto mb-5"
-              min-height="420"
-              width="320"
-            >
-              <v-img
-                :src="card.ReleaseScreenShot"
-                width="320"
-                height="227"
-              ></v-img>
-              <v-progress-linear
-                :value="current_time(index)"
-                :indeterminate="indeterminate(index)"
-                height="8"
-              ></v-progress-linear>
-              <v-rating
-                :value="card.Rating"
-                class="d-flex justify-center mt-1"
-                size="27"
-                length="10"
-                readonly
-                dense
-              ></v-rating>
-              <v-card-title
-                v-text="card.ReleaseName.substring(0, 27)"
-              ></v-card-title>
-              <v-card-subtitle>
-                <v-div v-for="(by, index) in card.ReleasedBy" :key="by"
-                  >{{ nameWithComma(index) }}{{ by }}</v-div
+            <v-row align="center" justify="center">
+              <v-hover v-slot:default="{ hover }">
+                <v-card
+                  :elevation="hover ? 5 : 2"
+                  :disabled="cardDisabled(index)"
+                  class="card-outter"
+                  min-height="420"
+                  width="282"
                 >
-              </v-card-subtitle>
-              <v-card-text>
-                <v-div
-                  class="font-italic font-weight-medium"
-                  v-for="(by, index) in card.Credits"
-                  :key="by"
-                  >{{ nameWithComma(index) }}{{ by }}</v-div
-                >
-              </v-card-text>
-            </v-card>
-            <!-- <v-btn href="https://csdb.dk/release/?id=" target="_blank" text> -->
-            <!-- <span class="mr-2">CSDb</span> -->
-            <!-- <v-icon>link</v-icon> -->
-            <!-- </v-btn> -->
+                  <v-img
+                    :style="cursorOverImg(index)"
+                    :elevation="hover ? 20 : 2"
+                    @click="click('jmp', index)"
+                    :src="card.ReleaseScreenShot"
+                    width="282"
+                    height="200"
+                    >
+                    <!-- <v-fade-transition>
+                      <v-overlay v-if="hover" absolute color="#222222">
+                        <v-btn @click="click('play', index)" class="mr-2" fab>
+                          <v-icon>{{ playingNow(index) }}</v-icon>
+                        </v-btn>
+                      </v-overlay>
+                    </v-fade-transition> -->
+                  </v-img>
+                  <v-progress-linear
+                    :value="current_time(index)"
+                    :indeterminate="indeterminate(index)"
+                    height="10"
+                  ></v-progress-linear>
+                  <v-rating
+                    :value="card.Rating"
+                    class="d-flex justify-center mt-1"
+                    size="24"
+                    length="10"
+                    readonly
+                    dense
+                  ></v-rating>
+                  <v-card-title
+                    class="ml-3 mt-2 pa-0 ma-0"
+                    v-text="card.ReleaseName.substring(0, 27)"
+                  >
+                  </v-card-title>
+                  <v-card-subtitle class="ml-3 mb-2 pa-0 ma-0">
+                    <v-div v-for="(by, index) in card.ReleasedBy" :key="by"
+                      >{{ nameWithComma(index) }}{{ by }}</v-div
+                    >
+                  </v-card-subtitle>
+                  <v-card-text class="ml-3 mb-2 pa-0 ma-0">
+                    <v-div
+                      class="font-italic font-weight-medium"
+                      v-for="(by, index) in card.Credits"
+                      :key="by"
+                      >{{ nameWithComma(index) }}{{ by }}</v-div
+                    >
+                  </v-card-text>
+                  <v-card-text
+                    class="ml-3 pa-0 ma-0 caption"
+                    v-text="card.ReleasedAt.substring(0, 40)"
+                  ></v-card-text>
+                  <v-card-actions class="card-actions">
+                    <v-btn
+                      text
+                      color="deep-purple accent-4"
+                      :href="linkToCsdbId(card.ReleaseID)"
+                      link
+                      target="_blank"
+                    >
+                      CSDB LINK
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-hover>
+            </v-row>
           </v-col>
         </v-row>
       </v-container>
@@ -110,15 +138,15 @@
         <v-layout wrap justify-center>
           <v-progress-linear
             :value="(timeCurrent / timeDuration) * 100.0"
-            height="8"
+            height="10"
             :indeterminate="music_loading"
           ></v-progress-linear>
           <v-btn
             class="mt-1 font-weight-thin title"
-            :href="linkToCsdb"
-            link
             text
             block
+            :href="linkToCsdb"
+            link
             target="_blank"
           >
             {{ title_playing }}
@@ -132,6 +160,26 @@
     </audio>
   </v-app>
 </template>
+
+<style scoped>
+.card-outter {
+  position: relative;
+}
+.card-actions {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.v-card--reveal {
+  align-items: center;
+  bottom: 0;
+  justify-content: center;
+  opacity: 0.5;
+  position: absolute;
+  width: 100%;
+}
+</style>
 
 <script>
 import axios from "axios";
@@ -173,11 +221,33 @@ export default {
     },
   },
   methods: {
+    playingNow: function(id) {
+      if (
+        id == this.last_index &&
+        this.playedOnce &&
+        this.playing &&
+        !this.paused
+      ) {
+        return "pause";
+      }
+      return "play_arrow";
+    },
+    linkToCsdbId: function(id) {
+      var outstring = "";
+      outstring = "https://csdb.dk/release/?id=" + id;
+      return outstring;
+    },
     cardDisabled: function(id) {
       if (this.releases[id].WAVCached) {
         return false;
       }
       return true;
+    },
+    cursorOverImg: function(id) {
+      if (this.releases[id].WAVCached) {
+        return "cursor: pointer";
+      }
+      return "";
     },
     current_time: function(id) {
       if (this.music_play && id == this.last_index) {
