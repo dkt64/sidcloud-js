@@ -79,6 +79,11 @@
                       </v-btn>
                     </v-overlay>
                   </v-img>
+                  <!-- <v-progress-linear
+                    :value="(timeCurrent / timeDuration) * 100.0"
+                    height="10"
+                    :indeterminate="music_loading"
+                  ></v-progress-linear> -->
                   <v-progress-linear
                     :value="current_time(index)"
                     :indeterminate="indeterminate(index)"
@@ -93,14 +98,8 @@
                     dense
                   ></v-rating>
                   <v-card-text
-                    class="ml-3 pa-0 ma-0 caption"
-                    v-text="
-                      card.ReleaseYear +
-                        '-' +
-                        card.ReleaseMonth +
-                        '-' +
-                        card.ReleaseDay
-                    "
+                    class="ml-3 mt-1 pa-0 ma-0 caption"
+                    v-text="releaseDate(index)"
                   ></v-card-text>
                   <v-card-title
                     class="ml-3 mt-1 pa-0 ma-0"
@@ -108,17 +107,12 @@
                   >
                   </v-card-title>
                   <v-card-subtitle class="ml-3 mb-2 pa-0 ma-0">
-                    <v-div v-for="(by, index) in card.ReleasedBy" :key="by"
-                      >{{ nameWithComma(index) }}{{ by }}</v-div
-                    >
+                    {{ releasedWithComma(index) }}
                   </v-card-subtitle>
-                  <v-card-text class="ml-3 mb-2 pa-0 ma-0">
-                    <v-div
-                      class="font-italic font-weight-medium"
-                      v-for="(by, index) in card.Credits"
-                      :key="by"
-                      >{{ nameWithComma(index) }}{{ by }}</v-div
-                    >
+                  <v-card-text
+                    class="ml-3 mb-2 pa-0 ma-0 font-italic font-weight-medium"
+                  >
+                    {{ creditsWithComma(index) }}
                   </v-card-text>
                   <v-card-text
                     class="ml-3 pa-0 ma-0 caption"
@@ -233,6 +227,17 @@ export default {
     },
   },
   methods: {
+    releaseDate: function(id) {
+      let y = this.releases[id].ReleaseYear.toString();
+      let m = this.releases[id].ReleaseMonth.toString();
+      m = m.padStart(2, "0");
+      let d = this.releases[id].ReleaseDay.toString();
+      d = d.padStart(2, "0");
+      return y + "-" + m + "-" + d;
+    },
+    playTimeChange: function() {
+      this.timeCurrent = player.currentTime;
+    },
     // playingNow: function(id) {
     //   if (
     //     id == this.last_index &&
@@ -286,12 +291,31 @@ export default {
         return false;
       }
     },
-    nameWithComma(index) {
-      if (index == 0) {
-        return "";
-      } else {
-        return ", ";
+    releasedWithComma(index) {
+      let out = "";
+      if (this.releases[index].ReleasedBy != null) {
+        for (let i = 0; i < this.releases[index].ReleasedBy.length; i++) {
+          if (i != 0) {
+            out += "," + this.releases[index].ReleasedBy[i];
+          } else {
+            out += this.releases[index].ReleasedBy[i];
+          }
+        }
       }
+      return out;
+    },
+    creditsWithComma(index) {
+      let out = "";
+      if (this.releases[index].Credits != null) {
+        for (let i = 0; i < this.releases[index].Credits.length; i++) {
+          if (i != 0) {
+            out += ", " + this.releases[index].Credits[i];
+          } else {
+            out += this.releases[index].Credits[i];
+          }
+        }
+      }
+      return out;
     },
     AudioUrl() {
       // eslint-disable-next-line
@@ -556,7 +580,7 @@ export default {
 
     player.addEventListener("ended", this.ended);
     player.addEventListener("canplay", this.canplay);
-    player.addEventListener("timeupdate", this.timeupdate);
+    // player.addEventListener("timeupdate", this.timeupdate); // spowalnia stronę
     player.addEventListener("playing", this.playing);
 
     // Niepotrzebne - tylko do debuggingu
@@ -578,6 +602,8 @@ export default {
     player.addEventListener("volumechange", this.volumechange);
 
     window.addEventListener("keydown", this.keydown);
+
+    setInterval(this.playTimeChange, 500);
 
     // Cykliczne
     // player.addEventListener("durationchange", this.durationchange);
