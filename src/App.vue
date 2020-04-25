@@ -276,7 +276,7 @@ export default {
       return "";
     },
     current_time: function(id) {
-      if (this.music_play && id == this.last_index) {
+      if (id == this.last_index) {
         return ((this.timeCurrent / this.timeDuration) * 100.0).toString();
         // return player.duration.toString();
         // return this.timeCurrent.toString()
@@ -473,6 +473,7 @@ export default {
 
           this.clearPlayingNow();
           player.pause();
+          this.timeCurrent = 0;
           player.currentTime = 0;
           this.paused = false;
           this.music_play = false;
@@ -517,6 +518,7 @@ export default {
               //
               this.clearPlayingNow();
               player.pause();
+              this.timeCurrent = 0;
               player.currentTime = 0;
               this.paused = false;
               this.music_play = false;
