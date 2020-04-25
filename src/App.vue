@@ -61,24 +61,23 @@
                   :elevation="hover ? 5 : 2"
                   :disabled="cardDisabled(index)"
                   class="card-outter"
-                  min-height="420"
-                  width="282"
+                  min-height="450"
+                  width="300"
                 >
                   <v-img
                     :style="cursorOverImg(index)"
                     :elevation="hover ? 20 : 2"
                     @click="click('jmp', index)"
                     :src="card.ReleaseScreenShot"
-                    width="282"
-                    height="200"
-                    >
-                    <!-- <v-fade-transition>
-                      <v-overlay v-if="hover" absolute color="#222222">
-                        <v-btn @click="click('play', index)" class="mr-2" fab>
-                          <v-icon>{{ playingNow(index) }}</v-icon>
-                        </v-btn>
-                      </v-overlay>
-                    </v-fade-transition> -->
+                    width="300"
+                    height="212"
+                  >
+                    <v-overlay v-if="hover" absolute color="#222222">
+                      <v-btn @click="click('play', index)" class="mr-2" fab>
+                        <v-icon v-if="playingNow[index]">pause</v-icon>
+                        <v-icon v-if="!playingNow[index]">play_arrow</v-icon>
+                      </v-btn>
+                    </v-overlay>
                   </v-img>
                   <v-progress-linear
                     :value="current_time(index)"
@@ -93,8 +92,18 @@
                     readonly
                     dense
                   ></v-rating>
+                  <v-card-text
+                    class="ml-3 pa-0 ma-0 caption"
+                    v-text="
+                      card.ReleaseYear +
+                        '-' +
+                        card.ReleaseMonth +
+                        '-' +
+                        card.ReleaseDay
+                    "
+                  ></v-card-text>
                   <v-card-title
-                    class="ml-3 mt-2 pa-0 ma-0"
+                    class="ml-3 mt-1 pa-0 ma-0"
                     v-text="card.ReleaseName.substring(0, 27)"
                   >
                   </v-card-title>
@@ -123,7 +132,7 @@
                       link
                       target="_blank"
                     >
-                      CSDB LINK
+                      CSDB
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -184,10 +193,13 @@
 <script>
 import axios from "axios";
 
+var player;
+
 export default {
   name: "App",
   data: () => ({
     releases: null,
+    playingNow: [],
     title_playing: "SIDCLOUD - YOUR SID NEWSPAPER",
     audio_url: "",
     music_play: false,
@@ -221,16 +233,25 @@ export default {
     },
   },
   methods: {
-    playingNow: function(id) {
-      if (
-        id == this.last_index &&
-        this.playedOnce &&
-        this.playing &&
-        !this.paused
-      ) {
-        return "pause";
+    // playingNow: function(id) {
+    //   if (
+    //     id == this.last_index &&
+    //     this.playedOnce &&
+    //     this.playing &&
+    //     !this.paused
+    //   ) {
+    //     return "pause";
+    //   }
+    //   return "play_arrow";
+    // },
+    clearPlayingNow: function() {
+      for (let i = 0; i < this.playingNow.length; i++) {
+        this.playingNow[i] = false;
       }
-      return "play_arrow";
+    },
+    setPlayingNow: function(id) {
+      this.clearPlayingNow();
+      this.playingNow[id] = true;
     },
     linkToCsdbId: function(id) {
       var outstring = "";
@@ -299,6 +320,7 @@ export default {
       // this.audio_url = "";
       // this.paused = false;
       // this.music_play = false;
+      this.clearPlayingNow();
       this.music_ended = true;
       this.click("jmp", this.last_index + 1);
     },
@@ -307,11 +329,11 @@ export default {
     },
     timeupdate() {
       // console.log("player event: timeupdate");
-      var player = document.getElementById("radio");
       this.timeCurrent = player.currentTime;
     },
     playing() {
       console.log("player event: playing");
+      this.setPlayingNow(this.last_index);
       this.paused = false;
       this.music_play = true;
       this.playedOnce = true;
@@ -389,14 +411,13 @@ export default {
     click(job, id) {
       // console.log("Clicked on " + id);
 
-      var player = document.getElementById("radio");
-
       // var query;
       switch (job) {
         // ===========================
         // stop
         // ===========================
         case "stop":
+          this.clearPlayingNow();
           this.audio_url = "";
           player.load();
           this.paused = false;
@@ -426,6 +447,7 @@ export default {
             return;
           }
 
+          this.clearPlayingNow();
           player.pause();
           player.currentTime = 0;
           this.paused = false;
@@ -447,10 +469,10 @@ export default {
 
           this.last_index = id;
           this.music_loading = true;
-          this.AudioUrl();
           this.linkToCsdb =
             "https://csdb.dk/release/?id=" +
             this.releases[this.last_index].ReleaseID;
+          this.AudioUrl();
           player.load();
           console.log("Loading...");
           player.play();
@@ -469,6 +491,7 @@ export default {
               //
               // music_play
               //
+              this.clearPlayingNow();
               player.pause();
               player.currentTime = 0;
               this.paused = false;
@@ -502,6 +525,7 @@ export default {
               //
               // pause
               //
+              this.clearPlayingNow();
               player.pause();
               this.paused = true;
               this.music_play = false;
@@ -519,13 +543,17 @@ export default {
         console.log(response.data);
 
         this.releases = response.data;
+
+        // Tworzymy tablicę tej samej długości ze stanem muzyczki
+        this.playingNow = new Array(this.releases.length).fill(false);
       })
       .catch(function(error) {
         console.log(error);
       });
   },
   mounted() {
-    var player = document.getElementById("radio");
+    player = document.getElementById("radio");
+
     player.addEventListener("ended", this.ended);
     player.addEventListener("canplay", this.canplay);
     player.addEventListener("timeupdate", this.timeupdate);
