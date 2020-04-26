@@ -58,6 +58,7 @@
             <v-row align="center" justify="center">
               <v-hover v-slot:default="{ hover }">
                 <v-card
+
                   :elevation="hover ? 5 : 2"
                   :disabled="cardDisabled(index)"
                   class="card-outter"
@@ -98,24 +99,24 @@
                     dense
                   ></v-rating>
                   <v-card-text
-                    class="ml-3 mt-1 pa-0 ma-0 caption"
+                    class="mx-3 mt-1 pa-0 ma-0 caption"
                     v-text="releaseDate(index)"
                   ></v-card-text>
                   <v-card-title
-                    class="ml-3 mt-1 pa-0 ma-0"
-                    v-text="card.ReleaseName.substring(0, 27)"
+                    class="mx-3 mt-1 pa-0 ma-0"
+                    v-text="card.ReleaseName.substring(0, 24)"
                   >
                   </v-card-title>
-                  <v-card-subtitle class="ml-3 mb-2 pa-0 ma-0">
+                  <v-card-subtitle class="mx-3 mb-2 pa-0 ma-0">
                     {{ releasedWithComma(index) }}
                   </v-card-subtitle>
                   <v-card-text
-                    class="ml-3 mb-2 pa-0 ma-0 font-italic font-weight-medium"
+                    class="mx-3 mb-2 pa-0 ma-0 font-italic font-weight-medium"
                   >
                     {{ creditsWithComma(index) }}
                   </v-card-text>
                   <v-card-text
-                    class="ml-3 pa-0 ma-0 caption"
+                    class="mx-3 pa-0 ma-0 caption"
                     v-text="card.ReleasedAt.substring(0, 40)"
                   ></v-card-text>
                   <v-card-actions class="card-actions">
@@ -167,6 +168,8 @@
 <style scoped>
 .card-outter {
   position: relative;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 .card-actions {
   position: absolute;
@@ -233,6 +236,19 @@ export default {
       m = m.padStart(2, "0");
       let d = this.releases[id].ReleaseDay.toString();
       d = d.padStart(2, "0");
+
+      if (this.releases[id].ReleaseMonth==0) {
+        m = "??"
+      }
+
+      if (this.releases[id].ReleaseDay==0) {
+        d = "??"
+      }
+
+      if (this.releases[id].ReleaseYear==0) {
+        y = "????"
+      }
+
       return y + "-" + m + "-" + d;
     },
     playTimeChange: function() {
@@ -296,7 +312,7 @@ export default {
       if (this.releases[index].ReleasedBy != null) {
         for (let i = 0; i < this.releases[index].ReleasedBy.length; i++) {
           if (i != 0) {
-            out += "," + this.releases[index].ReleasedBy[i];
+            out += ", " + this.releases[index].ReleasedBy[i];
           } else {
             out += this.releases[index].ReleasedBy[i];
           }
