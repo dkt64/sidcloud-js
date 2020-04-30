@@ -58,7 +58,6 @@
             <v-row align="center" justify="center">
               <v-hover v-slot:default="{ hover }">
                 <v-card
-
                   :elevation="hover ? 5 : 2"
                   :disabled="cardDisabled(index)"
                   class="card-outter"
@@ -128,6 +127,7 @@
                       target="_blank"
                     >
                       CSDB
+                      <v-icon small>launch</v-icon>
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -155,6 +155,7 @@
           >
             {{ title_playing }}
           </v-btn>
+          <!-- <v-icon>launch</v-icon> -->
           <!-- <v-icon class="mt-1" right>open_in_new</v-icon> -->
         </v-layout>
       </v-container>
@@ -210,6 +211,14 @@ export default {
     linkToCsdb: "https://csdb.dk/",
     playedOnce: false,
   }),
+  // watch: {
+  //   "$vuetify.theme.dark"(newValue) {
+  //     localStorage.setItem("darkTheme", newValue);
+  //     console.log("Saving darkTheme = " + newValue);
+
+  //     console.log("Verify darkTheme = " + localStorage.getItem("darkTheme"));
+  //   },
+  // },
   computed: {
     play_icon: function() {
       if (this.music_play && !this.paused) {
@@ -237,16 +246,16 @@ export default {
       let d = this.releases[id].ReleaseDay.toString();
       d = d.padStart(2, "0");
 
-      if (this.releases[id].ReleaseMonth==0) {
-        m = "??"
+      if (this.releases[id].ReleaseMonth == 0) {
+        m = "??";
       }
 
-      if (this.releases[id].ReleaseDay==0) {
-        d = "??"
+      if (this.releases[id].ReleaseDay == 0) {
+        d = "??";
       }
 
-      if (this.releases[id].ReleaseYear==0) {
-        y = "????"
+      if (this.releases[id].ReleaseYear == 0) {
+        y = "????";
       }
 
       return y + "-" + m + "-" + d;
@@ -594,6 +603,9 @@ export default {
       });
   },
   mounted() {
+    // console.log("Loading darkTheme = " + localStorage.getItem("darkTheme"));
+    // this.$vuetify.theme.dark = localStorage.getItem("darkTheme");
+
     player = document.getElementById("radio");
 
     player.addEventListener("ended", this.ended);
