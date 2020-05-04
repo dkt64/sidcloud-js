@@ -64,6 +64,7 @@
                   min-height="450"
                   width="300"
                 >
+                  <!-- @click="click('jmp', index)" -->
                   <v-img
                     :style="cursorOverImg(index)"
                     :elevation="hover ? 20 : 2"
@@ -73,7 +74,8 @@
                     height="212"
                   >
                     <v-overlay v-if="hover" absolute color="#222222">
-                      <v-btn @click="click('play', index)" class="mr-2" fab>
+                      <!-- <v-btn @click="click('play', index)" class="mr-2" fab> -->
+                      <v-btn class="mr-2" fab>
                         <v-icon v-if="playingNow[index]">pause</v-icon>
                         <v-icon v-if="!playingNow[index]">play_arrow</v-icon>
                       </v-btn>
@@ -87,6 +89,7 @@
                   <v-progress-linear
                     :value="current_time(index)"
                     :indeterminate="indeterminate(index)"
+                    :active="playingNow[index]"
                     height="10"
                   ></v-progress-linear>
                   <v-rating
@@ -103,7 +106,7 @@
                   ></v-card-text>
                   <v-card-title
                     class="mx-3 mt-1 pa-0 ma-0"
-                    v-text="card.ReleaseName.substring(0, 24)"
+                    v-text="card.ReleaseName.substring(0, 25)"
                   >
                   </v-card-title>
                   <v-card-subtitle class="mx-3 mb-2 pa-0 ma-0">
@@ -399,6 +402,15 @@ export default {
     },
     loadedmetadata() {
       console.log("player event: loadedmetadata");
+
+      // console.log("player.duration = " + player.duration);
+
+      // if (player.duration > 300.0) {
+      //   this.timeDuration = 300.0;
+      // } else {
+      //   this.timeDuration = player.duration;
+      // }
+
       // if (!this.music_ended) {
       //   player.play();
       //   console.log("player.play()...");
@@ -439,6 +451,17 @@ export default {
     },
     volumechange() {
       console.log("player event: volumechange");
+    },
+    durationchange() {
+      console.log("player event: durationchange");
+
+      console.log("durationchange to " + player.duration);
+
+      if (player.duration > 300.0) {
+        this.timeDuration = 300.0;
+      } else {
+        this.timeDuration = player.duration;
+      }
     },
     keydown(event) {
       switch (event.code) {
@@ -631,12 +654,12 @@ export default {
     player.addEventListener("suspend", this.suspend);
     player.addEventListener("volumechange", this.volumechange);
 
+    player.addEventListener("durationchange", this.durationchange);
+
+    // Obsługa klawiszy multimedialnych
     window.addEventListener("keydown", this.keydown);
 
-    setInterval(this.playTimeChange, 500);
-
-    // Cykliczne
-    // player.addEventListener("durationchange", this.durationchange);
+    setInterval(this.playTimeChange, 1000);
   },
 };
 </script>
