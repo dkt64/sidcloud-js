@@ -60,6 +60,7 @@
                 <v-card
                   :elevation="hover ? 5 : 2"
                   :disabled="cardDisabled(index)"
+                  v-bind:id="'cnr' + card.ReleaseID.toString()"
                   class="card-outter"
                   min-height="450"
                   width="300"
@@ -68,7 +69,7 @@
                     :style="cursorOverImg(index)"
                     :elevation="hover ? 20 : 2"
                     :src="card.ReleaseScreenShot"
-                    @click="click('play', index)" 
+                    @click="click('play', index)"
                     width="300"
                     height="212"
                   >
@@ -87,7 +88,7 @@
                   <v-progress-linear
                     :value="current_time(index)"
                     :indeterminate="indeterminate(index)"
-                    :active="playingNow[index]"
+                    :active="index == last_index"
                     height="10"
                   ></v-progress-linear>
                   <v-rating
@@ -150,8 +151,13 @@
             class="mt-1 font-weight-thin title"
             text
             block
-            :href="linkToCsdb"
             link
+            @click="
+              $vuetify.goTo(
+                '#cnr' + releases[last_index].ReleaseID.toString(),
+                gotoOptions
+              )
+            "
             target="_blank"
           >
             {{ title_playing }}
@@ -221,6 +227,13 @@ export default {
   //   },
   // },
   computed: {
+    gotoOptions() {
+      return {
+        duration: 300,
+        offset: 20,
+        easing: "easeInOutCubic",
+      };
+    },
     play_icon: function() {
       if (this.music_play && !this.paused) {
         return "pause";
