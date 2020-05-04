@@ -64,17 +64,15 @@
                   min-height="450"
                   width="300"
                 >
-                  <!-- @click="click('jmp', index)" -->
                   <v-img
                     :style="cursorOverImg(index)"
                     :elevation="hover ? 20 : 2"
-                    @click="click('jmp', index)"
                     :src="card.ReleaseScreenShot"
+                    @click="click('play', index)" 
                     width="300"
                     height="212"
                   >
                     <v-overlay v-if="hover" absolute color="#222222">
-                      <!-- <v-btn @click="click('play', index)" class="mr-2" fab> -->
                       <v-btn class="mr-2" fab>
                         <v-icon v-if="playingNow[index]">pause</v-icon>
                         <v-icon v-if="!playingNow[index]">play_arrow</v-icon>
@@ -209,7 +207,7 @@ export default {
     last_index: 0,
     music_ended: false,
     music_loading: false,
-    timeDuration: 305.0,
+    timeDuration: 300.0,
     timeCurrent: 0.0,
     linkToCsdb: "https://csdb.dk/",
     playedOnce: false,
@@ -403,14 +401,6 @@ export default {
     loadedmetadata() {
       console.log("player event: loadedmetadata");
 
-      // console.log("player.duration = " + player.duration);
-
-      // if (player.duration > 300.0) {
-      //   this.timeDuration = 300.0;
-      // } else {
-      //   this.timeDuration = player.duration;
-      // }
-
       // if (!this.music_ended) {
       //   player.play();
       //   console.log("player.play()...");
@@ -455,10 +445,11 @@ export default {
     durationchange() {
       console.log("player event: durationchange");
 
-      console.log("durationchange to " + player.duration);
+      console.log("durationchange readed " + player.duration);
 
       if (player.duration > 300.0) {
         this.timeDuration = 300.0;
+        console.log("durationchange changed to " + this.timeDuration);
       } else {
         this.timeDuration = player.duration;
       }
@@ -489,6 +480,7 @@ export default {
         // stop
         // ===========================
         case "stop":
+          console.log("job: stop");
           this.clearPlayingNow();
           this.audio_url = "";
           player.load();
@@ -501,6 +493,7 @@ export default {
         // ===========================
         case "jmp":
         case "replay":
+          console.log("job: jmp");
           // jeżeli index == 0 lub max to nic nie robimy
           if (
             (id == this.last_index &&
@@ -555,12 +548,13 @@ export default {
         // music_play / pause
         // ===========================
         case "play":
+          console.log("job: play");
           if (this.paused) {
             this.paused = false;
             this.music_ended = false;
             player.play();
           } else {
-            if (!this.music_play) {
+            if (!this.music_play || id != this.last_index) {
               //
               // music_play
               //
