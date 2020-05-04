@@ -43,11 +43,13 @@
 
       <v-spacer></v-spacer>
       <!-- class="overline" -->
+      <!-- v-model="$vuetify.theme.dark" -->
+      <!-- @click="toggleTheme" -->
       <v-switch
         class="hidden-xs-and-down"
-        v-model="$vuetify.theme.dark"
         :label="themeLabel"
         style="margin-top: 22px"
+        v-model="darkTheme"
       ></v-switch>
     </v-app-bar>
 
@@ -217,15 +219,15 @@ export default {
     timeCurrent: 0.0,
     linkToCsdb: "https://csdb.dk/",
     playedOnce: false,
+    darkTheme: false,
   }),
-  // watch: {
-  //   "$vuetify.theme.dark"(newValue) {
-  //     localStorage.setItem("darkTheme", newValue);
-  //     console.log("Saving darkTheme = " + newValue);
-
-  //     console.log("Verify darkTheme = " + localStorage.getItem("darkTheme"));
-  //   },
-  // },
+  watch: {
+    darkTheme: function(newValue) {
+      localStorage.setItem("darkTheme", newValue);
+      // console.log("Saving darkTheme = " + newValue);
+      this.$vuetify.theme.dark = newValue;
+    },
+  },
   computed: {
     gotoOptions() {
       return {
@@ -253,6 +255,17 @@ export default {
     },
   },
   methods: {
+    toggleTheme: function() {
+      if (this.themeDark) {
+        this.$vuetify.theme.dark = false;
+        this.themeDark = false;
+      } else {
+        this.$vuetify.theme.dark = true;
+        this.themeDark = true;
+      }
+
+      localStorage.setItem("themeDark", this.themeDark);
+    },
     releaseDate: function(id) {
       let y = this.releases[id].ReleaseYear.toString();
       let m = this.releases[id].ReleaseMonth.toString();
@@ -633,6 +646,9 @@ export default {
       });
   },
   mounted() {
+    this.darkTheme = localStorage.getItem("darkTheme") == "true";
+    // this.$vuetify.theme.dark = this.themeDark;
+    // console.log("Dark theme: ", this.themeDark);
     // console.log("Loading darkTheme = " + localStorage.getItem("darkTheme"));
     // this.$vuetify.theme.dark = localStorage.getItem("darkTheme");
 
@@ -658,7 +674,7 @@ export default {
     player.addEventListener("seeked", this.seeked);
     player.addEventListener("seeking", this.seeking);
     player.addEventListener("stalled", this.stalled);
-    player.addEventListener("suspend", this.suspend);
+    // player.addEventListener("suspend", this.suspend); // wyłączyłem bo dużo się tego pojawia
     player.addEventListener("volumechange", this.volumechange);
 
     player.addEventListener("durationchange", this.durationchange);
