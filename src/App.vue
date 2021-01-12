@@ -39,7 +39,7 @@
       <v-container fluid>
         <v-row>
           <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
-            <v-row align="center" justify="center">
+            <v-row class="my-1" align="center" justify="center">
               <v-hover v-slot:default="{ hover }">
                 <v-card
                   :elevation="hover ? 5 : 2"
