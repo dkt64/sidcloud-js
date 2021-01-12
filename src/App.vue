@@ -2,22 +2,16 @@
   <v-app>
     <v-app-bar app color="primary" dark height="80px">
       <div class="d-none d-sm-flex align-center">
-        <v-img
-          alt="Samar logo"
-          class="mr-1"
-          contain
-          src="sign.png"
-          width="40"
-        />
-        <v-flex class="font-weight-thin headline mr-5">SIDCLOUD</v-flex>
+        <v-btn icon href="/">
+          <v-img alt="Samar logo" contain src="sign.png" width="40" />
+        </v-btn>
+        <v-flex class="font-weight-thin headline ml-1 mr-5">SIDCLOUD</v-flex>
       </div>
 
       <v-spacer class="hidden-sm-and-down"></v-spacer>
 
-      <v-btn @click="click('play', last_index)" class="mr-2" fab>
+      <v-btn @click="click('play_top', last_index)" class="mr-2" fab>
         <v-icon>{{ play_icon }}</v-icon>
-        <!-- <v-icon>play_arrow</v-icon> -->
-        <!-- <v-icon>pause</v-icon> -->
       </v-btn>
       <v-btn @click="click('jmp', last_index - 1)" class="mr-2" fab>
         <v-icon>skip_previous</v-icon>
@@ -31,20 +25,8 @@
       <v-btn class="hidden-sm-and-down" @click="click('stop', last_index)" fab>
         <v-icon>stop</v-icon>
       </v-btn>
-      <!-- <v-btn class="mr-2" fab small> -->
-      <!-- <v-icon>volume_off</v-icon> -->
-      <!-- <v-icon>volume_up</v-icon> -->
-      <!-- </v-btn> -->
-
-      <!-- <v-spacer></v-spacer>
-      <div class="hidden-xs-and-down align-center">
-        <div class="font-weight-thin title">{{title_playing}}</div>
-      </div>-->
 
       <v-spacer></v-spacer>
-      <!-- class="overline" -->
-      <!-- v-model="$vuetify.theme.dark" -->
-      <!-- @click="toggleTheme" -->
       <v-switch
         class="hidden-xs-and-down"
         :label="themeLabel"
@@ -82,11 +64,6 @@
                       </v-btn>
                     </v-overlay>
                   </v-img>
-                  <!-- <v-progress-linear
-                    :value="(timeCurrent / timeDuration) * 100.0"
-                    height="10"
-                    :indeterminate="music_loading"
-                  ></v-progress-linear> -->
                   <v-progress-linear
                     :value="current_time(index)"
                     :indeterminate="indeterminate(index)"
@@ -100,6 +77,7 @@
                     length="10"
                     readonly
                     dense
+                    half-increments
                   ></v-rating>
                   <v-card-text
                     class="mx-3 mt-1 pa-0 ma-0 caption"
@@ -107,7 +85,7 @@
                   ></v-card-text>
                   <v-card-title
                     class="mx-3 mt-1 pa-0 ma-0"
-                    v-text="card.ReleaseName.substring(0, 25)"
+                    v-text="releaseName(index)"
                   >
                   </v-card-title>
                   <v-card-subtitle class="mx-3 mb-2 pa-0 ma-0">
@@ -144,10 +122,14 @@
     <v-bottom-navigation app grow>
       <v-container fluid style="margin: 0px; padding: 0px; width: 100%">
         <v-layout wrap justify-center>
+          <!-- v-model="newTimeCurrent" -->
           <v-progress-linear
             :value="(timeCurrent / timeDuration) * 100.0"
+            :buffer-value="timeBuffered"
+            :stream="music_play"
             height="10"
             :indeterminate="music_loading"
+            @click="sliderClick($event)"
           ></v-progress-linear>
           <v-btn
             class="mt-1 font-weight-thin title"
@@ -164,8 +146,6 @@
           >
             {{ title_playing }}
           </v-btn>
-          <!-- <v-icon>launch</v-icon> -->
-          <!-- <v-icon class="mt-1" right>open_in_new</v-icon> -->
         </v-layout>
       </v-container>
     </v-bottom-navigation>
@@ -217,9 +197,12 @@ export default {
     music_loading: false,
     timeDuration: 300.0,
     timeCurrent: 0.0,
+    timeBuffered: 0.0,
+    newTimeCurrent: 0.0,
     linkToCsdb: "https://csdb.dk/",
     playedOnce: false,
     darkTheme: false,
+    path_id: 0,
   }),
   watch: {
     darkTheme: function(newValue) {
@@ -244,7 +227,7 @@ export default {
       }
     },
     themeLabel: function() {
-      var out = "Theme";
+      var out = "Dark";
       if (
         this.$vuetify.breakpoint.name == "xs" ||
         this.$vuetify.breakpoint.name == "sm"
@@ -255,6 +238,13 @@ export default {
     },
   },
   methods: {
+    sliderClick: function(event) {
+      let el = document.querySelector(".progress-linear__bar"),
+        mousePos = event.offsetX,
+        elWidth = el.clientWidth,
+        percents = (mousePos / elWidth) * 100;
+      player.currentTime = percents;
+    },
     toggleTheme: function() {
       if (this.themeDark) {
         this.$vuetify.theme.dark = false;
@@ -265,6 +255,13 @@ export default {
       }
 
       localStorage.setItem("themeDark", this.themeDark);
+    },
+    releaseName: function(id) {
+      if (this.releases[id].ReleaseName.length < 25) {
+        return this.releases[id].ReleaseName
+      } else {
+        return this.releases[id].ReleaseName.substring(0, 25) + "..."
+      }
     },
     releaseDate: function(id) {
       let y = this.releases[id].ReleaseYear.toString();
@@ -285,22 +282,16 @@ export default {
         y = "????";
       }
 
-      return y + "-" + m + "-" + d;
+      return this.releases[id].ReleaseType + " / " + y + "-" + m + "-" + d;
     },
     playTimeChange: function() {
       this.timeCurrent = player.currentTime;
+
+      if (player.seekable.length > 0) {
+        this.timeBuffered = player.seekable.end(player.seekable.length - 1);
+        // console.log(this.timeBuffered);
+      }
     },
-    // playingNow: function(id) {
-    //   if (
-    //     id == this.last_index &&
-    //     this.playedOnce &&
-    //     this.playing &&
-    //     !this.paused
-    //   ) {
-    //     return "pause";
-    //   }
-    //   return "play_arrow";
-    // },
     clearPlayingNow: function() {
       for (let i = 0; i < this.playingNow.length; i++) {
         this.playingNow[i] = false;
@@ -330,8 +321,6 @@ export default {
     current_time: function(id) {
       if (id == this.last_index) {
         return ((this.timeCurrent / this.timeDuration) * 100.0).toString();
-        // return player.duration.toString();
-        // return this.timeCurrent.toString()
       } else {
         return "0";
       }
@@ -388,14 +377,6 @@ export default {
     },
     ended() {
       console.log("player event: ended");
-      // Teraz przeskakujemy do nastepnej
-      // to jest stary kod kiey robiłem restart
-      //
-      // player.pause();
-      // player.currentTime = 0.0;
-      // this.audio_url = "";
-      // this.paused = false;
-      // this.music_play = false;
       this.clearPlayingNow();
       this.music_ended = true;
       this.click("jmp", this.last_index + 1);
@@ -404,7 +385,7 @@ export default {
       console.log("player event: canplay");
     },
     timeupdate() {
-      // console.log("player event: timeupdate");
+      console.log("player event: timeupdate");
       this.timeCurrent = player.currentTime;
     },
     playing() {
@@ -426,14 +407,6 @@ export default {
     },
     loadedmetadata() {
       console.log("player event: loadedmetadata");
-
-      // if (!this.music_ended) {
-      //   player.play();
-      //   console.log("player.play()...");
-      //   this.paused = false;
-      //   this.music_play = true;
-      //   this.playedOnce = true;
-      // }
     },
     loadeddata() {
       console.log("player event: loadeddata");
@@ -471,11 +444,11 @@ export default {
     durationchange() {
       console.log("player event: durationchange");
 
-      console.log("durationchange readed " + player.duration);
+      console.log("durationchange: readed " + player.duration);
 
       if (player.duration > 300.0) {
         this.timeDuration = 300.0;
-        console.log("durationchange changed to " + this.timeDuration);
+        console.log("durationchange: changed to " + this.timeDuration);
       } else {
         this.timeDuration = player.duration;
       }
@@ -534,8 +507,15 @@ export default {
 
           // sprawdzamy czy mamy utwór cached
           //
-          if (!this.releases[id].WAVCached) {
-            return;
+          // if (!this.releases[id].WAVCached) {
+          //   return;
+          // }
+          while (!this.releases[id].WAVCached) {
+            if (id < 80) {
+              id++
+            } else {
+              return;
+            }
           }
 
           this.clearPlayingNow();
@@ -565,6 +545,7 @@ export default {
             "https://csdb.dk/release/?id=" +
             this.releases[this.last_index].ReleaseID;
           this.AudioUrl();
+
           player.load();
           console.log("Loading...");
           player.play();
@@ -573,9 +554,10 @@ export default {
         // ===========================
         // music_play / pause
         // ===========================
+        case "play_top":
         case "play":
           console.log("job: play");
-          if (this.paused) {
+          if (this.paused && id == this.last_index) {
             this.paused = false;
             this.music_ended = false;
             player.play();
@@ -591,6 +573,27 @@ export default {
               this.paused = false;
               this.music_play = false;
 
+              // ID
+              if (this.path_id > 0 && job == "play_top") {
+                // console.log("Path id = " + this.path_id);
+                for (var i = 0; i < this.releases.length; i++) {
+                  if (this.releases[i].ReleaseID == this.path_id) {
+                    // console.log("Found rel");
+                    this.last_index = i;
+                    id = i;
+                    this.path_id = 0;
+                    this.$vuetify.goTo(
+                      "#cnr" +
+                        this.releases[this.last_index].ReleaseID.toString(),
+                      this.gotoOptions
+                    );
+                    break;
+                  }
+                }
+              } else {
+                this.last_index = id;
+              }
+
               if (
                 this.$vuetify.breakpoint.name == "xs" ||
                 this.$vuetify.breakpoint.name == "sm"
@@ -605,7 +608,6 @@ export default {
                 this.title_playing = this.releases[id].ReleaseName;
               }
 
-              this.last_index = id;
               this.AudioUrl();
               this.music_loading = true;
               this.linkToCsdb =
@@ -640,6 +642,12 @@ export default {
 
         // Tworzymy tablicę tej samej długości ze stanem muzyczki
         this.playingNow = new Array(this.releases.length).fill(false);
+
+        // Odczytujemy ID z URl
+        var pathIDStr = window.location.pathname;
+        pathIDStr = pathIDStr.replace(/\D/g, "");
+        // console.log("URL param " + pathIDStr);
+        this.path_id = parseInt(pathIDStr, 10);
       })
       .catch(function(error) {
         console.log(error);
@@ -647,10 +655,6 @@ export default {
   },
   mounted() {
     this.darkTheme = localStorage.getItem("darkTheme") == "true";
-    // this.$vuetify.theme.dark = this.themeDark;
-    // console.log("Dark theme: ", this.themeDark);
-    // console.log("Loading darkTheme = " + localStorage.getItem("darkTheme"));
-    // this.$vuetify.theme.dark = localStorage.getItem("darkTheme");
 
     player = document.getElementById("radio");
 
