@@ -258,9 +258,9 @@ export default {
     },
     releaseName: function(id) {
       if (this.releases[id].ReleaseName.length < 25) {
-        return this.releases[id].ReleaseName
+        return this.releases[id].ReleaseName;
       } else {
-        return this.releases[id].ReleaseName.substring(0, 25) + "..."
+        return this.releases[id].ReleaseName.substring(0, 25) + "...";
       }
     },
     releaseDate: function(id) {
@@ -510,13 +510,24 @@ export default {
           // if (!this.releases[id].WAVCached) {
           //   return;
           // }
-          while (!this.releases[id].WAVCached) {
-            if (id < 80) {
-              id++
-            } else {
-              return;
+          if (id > this.last_index) {
+            while (!this.releases[id].WAVCached) {
+              if (id < 80) {
+                id++;
+              } else {
+                return;
+              }
+            }
+          } else if (id < this.last_index) { 
+            while (!this.releases[id].WAVCached) {
+              if (id > 0) {
+                id--;
+              } else {
+                return;
+              }
             }
           }
+
 
           this.clearPlayingNow();
           player.pause();
