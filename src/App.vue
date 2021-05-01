@@ -645,47 +645,78 @@ export default {
   },
   created() {
 
-		axios
-		.get("/api/v1/csdb_releases")
-		.then((response) => {
-			console.log("Response: ");
-			console.log(response.data);
+			let id = this.$route.query.id
 
-			if (this.$route.params.id != null) {
-				console.log("Params: ", this.$route.params.id);
-			}
+			if (id != null) {
+				if (id > 0) {
+					
+					console.log("Params: ", id);
 
-			if (this.$route.params.id != null) {
-				if (this.$route.params.id.length > 0) {
-					for (let i = 0; i < response.data.length; i++) {
-						if (response.data[i].ReleaseID == this.$route.params.id) {
-							this.releases = new Array(1);
-							this.releases[0] = response.data[i];
-							break;
-						}
-					}
-					if (this.releases == null) {
+					axios
+					.get("/api/v1/csdb_release/" + id)
+					.then((response) => {
+						console.log("Response: ");
+						console.log(response.data);
+
 						this.releases = response.data;
-					}
+
+						// Tworzymy tablicę tej samej długości ze stanem muzyczki
+						this.playingNow = new Array(this.releases.length).fill(false);
+
+						// Odczytujemy ID z URl
+						var pathIDStr = window.location.pathname;
+						pathIDStr = pathIDStr.replace(/\D/g, "");
+						// console.log("URL param " + pathIDStr);
+						this.path_id = parseInt(pathIDStr, 10);
+					})
+					.catch(function(error) {
+						console.log(error);
+					});
 				} else {
-					this.releases = response.data;
+					axios
+					.get("/api/v1/csdb_releases")
+					.then((response) => {
+						console.log("Response: ");
+						console.log(response.data);
+
+						this.releases = response.data;
+
+						// Tworzymy tablicę tej samej długości ze stanem muzyczki
+						this.playingNow = new Array(this.releases.length).fill(false);
+
+						// Odczytujemy ID z URl
+						var pathIDStr = window.location.pathname;
+						pathIDStr = pathIDStr.replace(/\D/g, "");
+						// console.log("URL param " + pathIDStr);
+						this.path_id = parseInt(pathIDStr, 10);
+					})
+					.catch(function(error) {
+						console.log(error);
+					});
+
 				}
 			} else {
+				axios
+				.get("/api/v1/csdb_releases")
+				.then((response) => {
+					console.log("Response: ");
+					console.log(response.data);
+
 					this.releases = response.data;
-				}
 
-			// Tworzymy tablicę tej samej długości ze stanem muzyczki
-			this.playingNow = new Array(this.releases.length).fill(false);
+					// Tworzymy tablicę tej samej długości ze stanem muzyczki
+					this.playingNow = new Array(this.releases.length).fill(false);
 
-			// Odczytujemy ID z URl
-			var pathIDStr = window.location.pathname;
-			pathIDStr = pathIDStr.replace(/\D/g, "");
-			// console.log("URL param " + pathIDStr);
-			this.path_id = parseInt(pathIDStr, 10);
-		})
-		.catch(function(error) {
-			console.log(error);
-		});
+					// Odczytujemy ID z URl
+					var pathIDStr = window.location.pathname;
+					pathIDStr = pathIDStr.replace(/\D/g, "");
+					// console.log("URL param " + pathIDStr);
+					this.path_id = parseInt(pathIDStr, 10);
+				})
+				.catch(function(error) {
+					console.log(error);
+				});
+			}
   },
   mounted() {
     this.darkTheme = localStorage.getItem("darkTheme") == "true";
