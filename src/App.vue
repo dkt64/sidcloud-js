@@ -35,7 +35,7 @@
       ></v-switch>
     </v-app-bar>
 
-    <v-content>
+    <v-main>
       <v-container fluid>
         <v-row>
           <v-col v-for="(card, index) in releases" :key="card.ReleaseID">
@@ -118,7 +118,7 @@
           </v-col>
         </v-row>
       </v-container>
-    </v-content>
+    </v-main>
     <v-bottom-navigation app grow>
       <v-container fluid style="margin: 0px; padding: 0px; width: 100%">
         <v-layout wrap justify-center>
@@ -238,12 +238,13 @@ export default {
     },
   },
   methods: {
-    sliderClick: function(event) {
-      let el = document.querySelector(".progress-linear__bar"),
-        mousePos = event.offsetX,
-        elWidth = el.clientWidth,
-        percents = (mousePos / elWidth) * 100;
-      player.currentTime = percents;
+    sliderClick: function() {
+    // sliderClick: function(event) {
+    //   let el = document.querySelector(".progress-linear__bar"),
+	// 	mousePos = event.offsetX,
+	// 	elWidth = el.clientWidth,
+	// 	percents = (mousePos / elWidth) * 100;
+	// 	player.currentTime = percents;
     },
     toggleTheme: function() {
       if (this.themeDark) {
@@ -643,26 +644,48 @@ export default {
     },
   },
   created() {
-    axios
-      .get("/api/v1/csdb_releases")
-      .then((response) => {
-        console.log("Response: ");
-        console.log(response.data);
 
-        this.releases = response.data;
+		axios
+		.get("/api/v1/csdb_releases")
+		.then((response) => {
+			console.log("Response: ");
+			console.log(response.data);
 
-        // Tworzymy tablicę tej samej długości ze stanem muzyczki
-        this.playingNow = new Array(this.releases.length).fill(false);
+			if (this.$route.params.id != null) {
+				console.log("Params: ", this.$route.params.id);
+			}
 
-        // Odczytujemy ID z URl
-        var pathIDStr = window.location.pathname;
-        pathIDStr = pathIDStr.replace(/\D/g, "");
-        // console.log("URL param " + pathIDStr);
-        this.path_id = parseInt(pathIDStr, 10);
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+			if (this.$route.params.id != null) {
+				if (this.$route.params.id.length > 0) {
+					for (let i = 0; i < response.data.length; i++) {
+						if (response.data[i].ReleaseID == this.$route.params.id) {
+							this.releases = new Array(1);
+							this.releases[0] = response.data[i];
+							break;
+						}
+					}
+					if (this.releases == null) {
+						this.releases = response.data;
+					}
+				} else {
+					this.releases = response.data;
+				}
+			} else {
+					this.releases = response.data;
+				}
+
+			// Tworzymy tablicę tej samej długości ze stanem muzyczki
+			this.playingNow = new Array(this.releases.length).fill(false);
+
+			// Odczytujemy ID z URl
+			var pathIDStr = window.location.pathname;
+			pathIDStr = pathIDStr.replace(/\D/g, "");
+			// console.log("URL param " + pathIDStr);
+			this.path_id = parseInt(pathIDStr, 10);
+		})
+		.catch(function(error) {
+			console.log(error);
+		});
   },
   mounted() {
     this.darkTheme = localStorage.getItem("darkTheme") == "true";
