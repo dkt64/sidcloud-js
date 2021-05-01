@@ -104,6 +104,16 @@
                     <v-btn
                       text
                       color="deep-purple accent-4"
+                      :href="linkToSidcloudId(card.ReleaseID)"
+                      link
+                      target="_blank"
+                    >
+                      Link
+                      <v-icon small>launch</v-icon>
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="deep-purple accent-4"
                       :href="linkToCsdbId(card.ReleaseID)"
                       link
                       target="_blank"
@@ -305,6 +315,11 @@ export default {
     linkToCsdbId: function(id) {
       var outstring = "";
       outstring = "https://csdb.dk/release/?id=" + id;
+      return outstring;
+    },
+    linkToSidcloudId: function(id) {
+      var outstring = "";
+      outstring = "https://sidcloud.net/?id=" + id;
       return outstring;
     },
     cardDisabled: function(id) {
