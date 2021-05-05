@@ -93,7 +93,7 @@
                   </v-card-subtitle>
                   <v-card-text
                     class="mx-3 mb-2 pa-0 ma-0 font-italic font-weight-medium"
-                  >
+                  > Music by
                     {{ creditsWithComma(index) }}
                   </v-card-text>
                   <v-card-text
@@ -362,7 +362,7 @@ export default {
       return out;
     },
     creditsWithComma(index) {
-      let out = "";
+      let out = " ";
       if (this.releases[index].Credits != null) {
         for (let i = 0; i < this.releases[index].Credits.length; i++) {
           if (i != 0) {
