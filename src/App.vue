@@ -271,7 +271,7 @@ export default {
       if (this.releases[id].ReleaseName.length < 25) {
         return this.releases[id].ReleaseName;
       } else {
-        return this.releases[id].ReleaseName.substring(0, 25) + "...";
+        return this.releases[id].ReleaseName.substring(0, 24) + "...";
       }
     },
     releaseDate: function(id) {

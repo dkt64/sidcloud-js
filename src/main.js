@@ -6,7 +6,8 @@ import vuetify from './plugins/vuetify';
 import axios from "axios";
 
 if (process.env.NODE_ENV == "development") {
-  axios.defaults.baseURL = "http://localhost";
+//   axios.defaults.baseURL = "http://localhost";
+  axios.defaults.baseURL = "https://sidcloud.net";
 }
 
 Vue.config.productionTip = false
