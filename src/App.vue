@@ -392,20 +392,20 @@ export default {
       }
     },
     ended() {
-      console.log("player event: ended");
+    //   console.log("player event: ended");
       this.clearPlayingNow();
       this.music_ended = true;
       this.click("jmp", this.last_index + 1);
     },
     canplay() {
-      console.log("player event: canplay");
+    //   console.log("player event: canplay");
     },
     timeupdate() {
-      console.log("player event: timeupdate");
+    //   console.log("player event: timeupdate");
       this.timeCurrent = player.currentTime;
     },
     playing() {
-      console.log("player event: playing");
+    //   console.log("player event: playing");
       this.setPlayingNow(this.last_index);
       this.paused = false;
       this.music_play = true;
@@ -413,58 +413,58 @@ export default {
       this.music_loading = false;
     },
     canplaythrough() {
-      console.log("player event: canplaythrough");
+    //   console.log("player event: canplaythrough");
     },
     play() {
-      console.log("player event: play");
+    //   console.log("player event: play");
     },
     pause() {
-      console.log("player event: pause");
+    //   console.log("player event: pause");
     },
     loadedmetadata() {
-      console.log("player event: loadedmetadata");
+    //   console.log("player event: loadedmetadata");
     },
     loadeddata() {
-      console.log("player event: loadeddata");
+    //   console.log("player event: loadeddata");
     },
     waiting() {
-      console.log("player event: waiting");
+    //   console.log("player event: waiting");
     },
     audioprocess() {
-      console.log("player event: audioprocess");
+    //   console.log("player event: audioprocess");
     },
     complete() {
-      console.log("player event: complete");
+    //   console.log("player event: complete");
     },
     emptied() {
-      console.log("player event: emptied");
+    //   console.log("player event: emptied");
     },
     ratechange() {
-      console.log("player event: ratechange");
+    //   console.log("player event: ratechange");
     },
     seeked() {
-      console.log("player event: seeked");
+    //   console.log("player event: seeked");
     },
     seeking() {
-      console.log("player event: seeking");
+    //   console.log("player event: seeking");
     },
     stalled() {
-      console.log("player event: stalled");
+    //   console.log("player event: stalled");
     },
     suspend() {
-      console.log("player event: suspend");
+    //   console.log("player event: suspend");
     },
     volumechange() {
-      console.log("player event: volumechange");
+    //   console.log("player event: volumechange");
     },
     durationchange() {
-      console.log("player event: durationchange");
+    //   console.log("player event: durationchange");
 
-      console.log("durationchange: readed " + player.duration);
+    //   console.log("durationchange: readed " + player.duration);
 
       if (player.duration > 300.0) {
         this.timeDuration = 300.0;
-        console.log("durationchange: changed to " + this.timeDuration);
+        // console.log("durationchange: changed to " + this.timeDuration);
       } else {
         this.timeDuration = player.duration;
       }
@@ -472,7 +472,7 @@ export default {
     keydown(event) {
       switch (event.code) {
         case "MediaPlayPause":
-          console.log("window event: keydown");
+        //   console.log("window event: keydown");
           console.log(event.code);
           this.click("play", this.last_index);
           break;
@@ -480,7 +480,7 @@ export default {
           this.click("jmp", this.last_index + 1);
           break;
         case "MediaTrackPrevious":
-          console.log("window event: keydown");
+        //   console.log("window event: keydown");
           console.log(event.code);
           this.click("jmp", this.last_index - 1);
           break;
