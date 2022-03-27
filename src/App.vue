@@ -362,17 +362,19 @@ export default {
       return out;
     },
     creditsWithComma(index) {
-      let out = " ";
-      if (this.releases[index].Credits != null) {
-        for (let i = 0; i < this.releases[index].Credits.length; i++) {
-          if (i != 0) {
-            out += ", " + this.releases[index].Credits[i];
-          } else {
-            out += this.releases[index].Credits[i];
-          }
-        }
-      }
-      return out;
+    	let out = " ";
+    	if (this.releases[index].Credits != null) {
+			for (let i = 0; i < this.releases[index].Credits.length; i++) {
+				if (i != 0) {
+					out += ", " + this.releases[index].Credits[i];
+				} else {
+					out += this.releases[index].Credits[i];
+				}
+			}
+    } else {
+		out = "?"
+	}
+    	return out;
     },
     AudioUrl() {
       // eslint-disable-next-line
